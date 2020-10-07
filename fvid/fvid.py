@@ -107,7 +107,7 @@ def get_bits_from_video(video_filepath):
     return bits
 
 
-def save_bits_to_file(filepath, bits):
+def save_bits_to_file(file_path, bits):
     # get file extension
 
     bitstring = Bits(bin=bits)
