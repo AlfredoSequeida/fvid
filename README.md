@@ -4,7 +4,6 @@ to survive compression algorithms for data retrieval.
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
 
-
 <p align="center">
     <img src="https://i.imgur.com/LVthky0.png" alt="fvid">
     </br>
@@ -12,6 +11,23 @@ to survive compression algorithms for data retrieval.
 
 ---
 
+# Installation
+
+Requires installation of [FFmpeg](https://ffmpeg.org/download.html) first, then
+
+1) Install using pip3 
+
+Linux/OSX
+
+```
+pip3 install fvid 
+```
+
+Windows 
+
+```
+py -m pip install fvid 
+```
 
 # Usage
 
