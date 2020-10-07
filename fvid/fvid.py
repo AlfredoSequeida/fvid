@@ -39,6 +39,9 @@ def get_bits_from_image(image):
 
     pbar = tqdm(range(height), desc="Getting bits from frame")
 
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    
     for y in pbar:
         for x in range(width):
 
@@ -54,8 +57,6 @@ def get_bits_from_image(image):
                 return (bits, True)
 
             pixel = px[x, y]
-            white = (255, 255, 255)
-            black = (0, 0, 0)
 
             pixel_bin_rep = 0
 
