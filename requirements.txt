@@ -1,6 +1,0 @@
-numpy
-bitstring
-pillow
-ffmpeg-python
-python-magic
-tqdm
