@@ -93,19 +93,6 @@ def get_bits_from_video(video_filepath):
     for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
         image_sequence.append(Image.open(filename))
 
-    # process = (
-    #     ffmpeg.input(video_filepath)
-    #     .output("pipe:", format="rawvideo", pix_fmt="rgb24")
-    #     .run_async(pipe_stdout=True)
-    # )
-
-    # image = Image.frombytes(
-    #     size=(1920, 1080), data=process.stdout.read(1920 * 1080), mode="1"
-    # )
-
-    # image.save("image.png")
-
-    # get pixels from each still frame and append to one big array
     bits = ""
     sequence_length = len(image_sequence)
 
@@ -170,28 +157,6 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
 
 
 def make_video(output_filepath, image_sequence):
-    # image1 = np.stack([imageio.imread("image0_rend.png")] * 3, 2)
-    # # image2 = imageio.imread("image1.png")
-    # # image3 = imageio.imread("imageio:immunohistochemistry.png")
-
-    # w = imageio.get_writer(filepath, fps=1, macro_block_size=None)
-
-    # w.append_data(image1)
-    # # w.append_data(image2)
-    # # w.append_data(image3)
-
-    # w.close()
-
-    # process = (
-    #     ffmpeg.input("pipe:", pattern_type="glob", framerate=25)
-    #     .output(filepath, vcodec="libx264rgb")
-    #     .run_async(pipe_stdin=True)
-    # )
-
-    # for image in image_sequence:
-    #     process.communicate(input=image.tobytes())
-
-    # process.communicate(input="*.png")
 
     frames = glob.glob(f"{FRAMES_DIR}encoded_frames*.png")
 
