@@ -219,6 +219,9 @@ def main():
         save_bits_to_file("./", bits)
 
     elif args.encode:
+        # isdigit has the benefit of raising an error if the user passes a negative string
+        if not args.framerate.isdigit() and "/" not in args.framerate:
+            raise NotImplementedError("The framerate must be a positive fraction or an integer for now, like 3, '1/3', or '1/5'!")
         # get bits from file
         bits = get_bits_from_file(args.input)
 
