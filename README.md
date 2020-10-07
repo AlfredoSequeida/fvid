@@ -6,7 +6,7 @@ Venus: For those that get bored of looking at their wallpaper
 
 
 <p align="center">
-    <img src="https://i.imgur.com/KqmTZFI.png" alt="venus">
+    <img src="https://i.imgur.com/KqmTZFI.png" alt="fvid">
     </br>
 </p>
 
