@@ -17,7 +17,7 @@ Requires installation of [FFmpeg](https://ffmpeg.org/download.html) first, then
 
 1) Install using pip3 
 
-Linux/OSX
+Linux/macOS
 
 ```
 pip3 install fvid 
