@@ -157,7 +157,7 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     return image_sequence
 
 
-def make_video(output_filepath, image_sequence):
+def make_video(output_filepath, image_sequence, framerate="1/5"):
 
     frames = glob.glob(f"{FRAMES_DIR}encoded_frames*.png")
 
@@ -171,7 +171,7 @@ def make_video(output_filepath, image_sequence):
         ffmpeg.input(
             f"{FRAMES_DIR}encoded_frames*.png",
             pattern_type="glob",
-            framerate="1/5",
+            framerate=framerate,
         ).output(output_filepath, vcodec="libx264rgb").run(quiet=True)
 
 
@@ -200,6 +200,7 @@ def main():
 
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
+    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", action='store_const', const="1/5", type=str)
 
     args = parser.parse_args()
 
@@ -237,6 +238,6 @@ def main():
         else:
             video_file_path = "./file.mp4"
 
-        make_video(video_file_path, image_sequence)
+        make_video(video_file_path, image_sequence, args.framerate)
 
     cleanup()
