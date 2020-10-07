@@ -61,6 +61,6 @@ setup(
         "tqdm",
         "ffmpeg-python",
     ],
-    python_requires=">=3",
+    python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
 )
