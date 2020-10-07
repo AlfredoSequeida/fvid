@@ -6,7 +6,7 @@ to survive compression algorithms for data retrieval.===========================
 
 
 <p align="center">
-    <img src="https://i.imgur.com/5LPb6Ty.png" alt="fvid">
+    <img src="https://i.imgur.com/LVthky0.png" alt="fvid">
     </br>
 </p>
 
