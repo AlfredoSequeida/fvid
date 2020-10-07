@@ -188,8 +188,7 @@ def setup():
         os.makedirs(FRAMES_DIR)
 
 
-if __name__ == "__main__":
-
+def main():
     parser = argparse.ArgumentParser(description="save files as videos")
     parser.add_argument(
         "-e", "--encode", help="encode file as video", action="store_true"
