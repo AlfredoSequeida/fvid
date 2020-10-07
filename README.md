@@ -1,5 +1,5 @@
-Venus: For those that get bored of looking at their wallpaper 
-===============================================================
+fvid is a project that aims to encode any file as a video using 1-bit color images
+to survive compression algorithms for data retrieval.===============================================================
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
@@ -9,9 +9,6 @@ Venus: For those that get bored of looking at their wallpaper
     <img src="https://i.imgur.com/KqmTZFI.png" alt="fvid">
     </br>
 </p>
-
-fvid is a project that aims to encode any file as a video using 1-bit color images
-to survive compression algorithms for data retrieval.
 
 ---
 
