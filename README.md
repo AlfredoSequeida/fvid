@@ -13,9 +13,7 @@ to survive compression algorithms for data retrieval.
 
 # Installation
 
-Requires installation of [FFmpeg](https://ffmpeg.org/download.html) first, then
-
-1) Install using pip3 
+Requires installation of [FFmpeg](https://ffmpeg.org/download.html) first, then install using pip3 
 
 Linux/macOS
 
