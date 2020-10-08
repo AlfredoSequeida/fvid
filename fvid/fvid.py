@@ -108,7 +108,7 @@ def get_bits_from_video(video_filepath):
     return bits
 
 
-def save_bits_to_file(filepath, bits):
+def save_bits_to_file(file_path, bits):
     # get file extension
 
     bitstring = Bits(bin=bits)
@@ -116,8 +116,15 @@ def save_bits_to_file(filepath, bits):
     mime = Magic(mime=True)
     mime_type = mime.from_buffer(bitstring.tobytes())
 
+    # If filepath not passed in use defualt
+    #    otherwise used passed in filepath
+    if file_path == None:
+        filepath = f"file{mimetypes.guess_extension(type=mime_type)}"
+    else:
+        filepath = file_path
+
     with open(
-        f"{filepath}/file{mimetypes.guess_extension(type=mime_type)}", "wb"
+        filepath, "wb"
     ) as f:
         bitstring.tofile(f)
 
@@ -159,12 +166,18 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
 
 def make_video(output_filepath, image_sequence, framerate="1/5"):
 
+    if output_filepath == None:
+        outputfile = "file.mp4"
+    else:
+        outputfile = output_filepath
+
+
     frames = glob.glob(f"{FRAMES_DIR}encoded_frames*.png")
 
     # for one frame
     if len(frames) == 1:
         ffmpeg.input(frames[0], loop=1, t=1).output(
-            output_filepath, vcodec="libx264rgb"
+            outputfile, vcodec="libx264rgb"
         ).run(quiet=True)
 
     else:
@@ -172,7 +185,8 @@ def make_video(output_filepath, image_sequence, framerate="1/5"):
             f"{FRAMES_DIR}encoded_frames*.png",
             pattern_type="glob",
             framerate=framerate,
-        ).output(output_filepath, vcodec="libx264rgb").run(quiet=True)
+        ).output(outputfile, vcodec="libx264rgb").run(quiet=True)
+
 
 
 def cleanup():
@@ -209,14 +223,12 @@ def main():
     if args.decode:
         bits = get_bits_from_video(args.input)
 
-        file_path = ""
+        file_path = None
 
         if args.output:
             file_path = args.output
-        else:
-            file_path = "./"
 
-        save_bits_to_file("./", bits)
+        save_bits_to_file(file_path, bits)
 
     elif args.encode:
         # isdigit has the benefit of being True and raising an error if the user passes a negative string
@@ -235,12 +247,10 @@ def main():
                 f"{FRAMES_DIR}encoded_frames_{index}.png"
             )
 
-        video_file_path = ""
+        video_file_path = None
 
         if args.output:
             video_file_path = args.output
-        else:
-            video_file_path = "./file.mp4"
 
         make_video(video_file_path, image_sequence, args.framerate)
 
