@@ -214,7 +214,7 @@ def main():
 
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
-    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", action='store_const', const="1/5", type=str)
+    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
 
     args = parser.parse_args()
 
