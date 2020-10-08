@@ -164,7 +164,7 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     return image_sequence
 
 
-def make_video(output_filepath, image_sequence):
+def make_video(output_filepath, image_sequence, framerate="1/5"):
 
     if output_filepath == None:
         outputfile = "file.mp4"
@@ -184,8 +184,9 @@ def make_video(output_filepath, image_sequence):
         ffmpeg.input(
             f"{FRAMES_DIR}encoded_frames*.png",
             pattern_type="glob",
-            framerate="1/5",
+            framerate=framerate,
         ).output(outputfile, vcodec="libx264rgb").run(quiet=True)
+
 
 
 def cleanup():
@@ -213,6 +214,7 @@ def main():
 
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
+    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
 
     args = parser.parse_args()
 
@@ -229,6 +231,10 @@ def main():
         save_bits_to_file(file_path, bits)
 
     elif args.encode:
+        # isdigit has the benefit of being True and raising an error if the user passes a negative string
+        # all() lets us check if both the negative sign and forward slash are in the string, to prevent negative fractions
+        if (not args.framerate.isdigit() and "/" not in args.framerate) or all(x in args.framerate for x in ("-", "/")):
+            raise NotImplementedError("The framerate must be a positive fraction or an integer for now, like 3, '1/3', or '1/5'!")
         # get bits from file
         bits = get_bits_from_file(args.input)
 
@@ -246,6 +252,6 @@ def main():
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, image_sequence)
+        make_video(video_file_path, image_sequence, args.framerate)
 
     cleanup()
