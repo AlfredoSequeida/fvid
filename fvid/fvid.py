@@ -25,6 +25,8 @@ def get_bits_from_file(filepath):
 
     return bitarray.bin
 
+def less(val1, val2):
+    return val1 < val2
 
 def get_bits_from_image(image):
     width, height = image.size
