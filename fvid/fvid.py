@@ -4,6 +4,7 @@ import mimetypes
 from PIL import Image
 import glob
 
+from operator import sub
 import numpy as np
 from tqdm import tqdm
 import ffmpeg
