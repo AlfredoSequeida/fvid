@@ -25,6 +25,9 @@ import os
 
 import io
 import gzip
+import pickle
+
+
 
 DELIMITER = bin(int.from_bytes("HELLO MY NAME IS ALFREDO".encode(), "big"))
 FRAMES_DIR = "./fvid_frames/"
@@ -49,28 +52,32 @@ def get_password():
 def get_bits_from_file(filepath):
     print('Reading file...')
     bitarray = BitArray(filename=filepath)
-
+    bitarray.append(DELIMITER)
+    message = pickle.dumps({'filename': filepath, 'data' : str(bitarray.bin)})
+    bitarray2 = BitArray(message)
     # adding a delimiter to know when the file ends to avoid corrupted files
     # when retrieving
-    bitarray.append(DELIMITER)
+
     print('Bits are in place')
-    return bitarray.bin
+    return bitarray2.bin
 
 def get_bits_from_file_crypto(filepath, key):
     bitarray = BitArray(filename=filepath)
     bitarray.append(DELIMITER)
-    message = str(bitarray.bin).encode()
+    message = pickle.dumps({'filename': filepath, 'data' : str(bitarray.bin)})
+    # message = str(bitarray.bin).encode()
     f = Fernet(key)
     encrypted = f.encrypt(message)
     #zip
-    out = io.BytesIO()
-    with gzip.GzipFile(fileobj=out, mode='w') as fo:
-        fo.write(encrypted)
-    encrypted_zip = out.getvalue()
+    # out = io.BytesIO()
+    # with gzip.GzipFile(fileobj=out, mode='w') as fo:
+        # fo.write(encrypted)
+    # encrypted_zip = out.getvalue()
     #zip
     
     
-    bitarray2 = BitArray(encrypted_zip)
+    # bitarray2 = BitArray(encrypted_zip)
+    bitarray2 = BitArray(encrypted)
     print('Bits are in place')
     return bitarray2.bin
 
@@ -163,14 +170,31 @@ def save_bits_to_file(file_path, bits):
     # get file extension
 
     bitstring = Bits(bin=bits)
+    
+    _dict = pickle.loads(bitstring.tobytes())
+    filename = _dict['filename']
+    decrypted_bits_with_tail = _dict['data']
 
-    mime = Magic(mime=True)
-    mime_type = mime.from_buffer(bitstring.tobytes())
+    bitstring_with_tail = Bits(bin=decrypted_bits_with_tail)
+    bitstring_with_tail = bitstring_with_tail.bin
+
+    delimiter_str = DELIMITER.replace("0b", "")
+    delimiter_length = len(delimiter_str)
+
+    if bitstring_with_tail[-delimiter_length:] == delimiter_str:
+        bitstring_with_tail = bitstring_with_tail[: len(bitstring_with_tail) - delimiter_length]
+
+    bitstring = Bits(bin=bitstring_with_tail)
+
+
+
+    # mime = Magic(mime=True)
+    # mime_type = mime.from_buffer(bitstring.tobytes())
 
     # If filepath not passed in use defualt
     #    otherwise used passed in filepath
     if file_path == None:
-        filepath = f"file{mimetypes.guess_extension(type=mime_type)}"
+        filepath = filename
     else:
         filepath = file_path
 
@@ -183,17 +207,21 @@ def save_bits_to_file_crypto(file_path, bits, key):
     bitstring_temp = Bits(bin=bits)
     encrypted = bitstring_temp.tobytes()
 
-    #zip
-    in_ = io.BytesIO()
-    in_.write(encrypted)
-    in_.seek(0)
-    with gzip.GzipFile(fileobj=in_, mode='rb') as fo:
-        encrypted = fo.read()
-    #zip
+    # #zip
+    # in_ = io.BytesIO()
+    # in_.write(encrypted)
+    # in_.seek(0)
+    # with gzip.GzipFile(fileobj=in_, mode='rb') as fo:
+        # encrypted = fo.read()
+    # #zip
 
     f = Fernet(key)
-    decrypted_bits = f.decrypt(encrypted).decode()
-    bitstring_with_tail = Bits(bin=decrypted_bits)
+    decrypted_bits = f.decrypt(encrypted)#.decode()
+    _dict = pickle.loads(decrypted_bits)
+    filename = _dict['filename']
+    decrypted_bits_with_tail = _dict['data']
+    
+    bitstring_with_tail = Bits(bin=decrypted_bits_with_tail)
     bitstring_with_tail = bitstring_with_tail.bin
     # print('decoded_bitstring', bitstring_with_tail)
     delimiter_str = DELIMITER.replace("0b", "")
@@ -204,11 +232,11 @@ def save_bits_to_file_crypto(file_path, bits, key):
 
     bitstring = Bits(bin=bitstring_with_tail)
     
-    mime = Magic(mime=True)
-    mime_type = mime.from_buffer(bitstring.tobytes())
+    # mime = Magic(mime=True)
+    # mime_type = mime.from_buffer(bitstring.tobytes())
 
     if file_path == None:
-        filepath = f"file{mimetypes.guess_extension(type=mime_type)}"
+        filepath = filename
     else:
         filepath = file_path
 
@@ -311,7 +339,7 @@ def main():
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
     parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
-    parser.add_argument("-p", "--password", help="use this flag if you want to encrypt data with password", action="store_true")
+    parser.add_argument("-p", "--password", help="set a password", action="store_true")
     args = parser.parse_args()
 
     setup()
