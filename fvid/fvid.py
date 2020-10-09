@@ -4,6 +4,7 @@ import mimetypes
 from PIL import Image
 import glob
 
+from operator import sub
 import numpy as np
 from tqdm import tqdm
 import ffmpeg
@@ -25,6 +26,8 @@ def get_bits_from_file(filepath):
 
     return bitarray.bin
 
+def less(val1, val2):
+    return val1 < val2
 
 def get_bits_from_image(image):
     width, height = image.size
@@ -58,27 +61,28 @@ def get_bits_from_image(image):
 
             pixel = px[x, y]
 
-            pixel_bin_rep = 0
+            pixel_bin_rep = "0"
 
             # for exact matches
             if pixel == white:
-                pixel_bin_rep = 1
+                pixel_bin_rep = "1"
             elif pixel == black:
-                pixel_bin_rep = 0
+                pixel_bin_rep = "0"
             else:
-                white_diff = tuple(np.absolute(np.subtract(white, pixel)))
+                white_diff = tuple(map(abs, map(sub, white, pixel)))
                 # min_diff = white_diff
-                black_diff = tuple(np.absolute(np.subtract(black, pixel)))
+                black_diff = tuple(map(abs, map(sub, black, pixel)))
+
 
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                if np.less(white_diff, black_diff).all():
-                    pixel_bin_rep = 1
+                if all(map(less, white_diff, black_diff)):
+                    pixel_bin_rep = "1"
                 else:
-                    pixel_bin_rep = 0
+                    pixel_bin_rep = "0"
 
             # adding bits
-            bits += str(pixel_bin_rep)
+            bits += pixel_bin_rep
 
     return (bits, done)
 
