@@ -66,13 +66,14 @@ def get_bits_from_image(image):
             elif pixel == black:
                 pixel_bin_rep = "0"
             else:
-                white_diff = np.absolute(np.subtract(white, pixel))
+                white_diff = tuple(map(abs, map(sub, white, pixel)))
                 # min_diff = white_diff
-                black_diff = np.absolute(np.subtract(black, pixel))
+                black_diff = tuple(map(abs, map(sub, black, pixel)))
+
 
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                if np.less(white_diff, black_diff).all():
+                if all(map(less, white_diff, black_diff)):
                     pixel_bin_rep = "1"
                 else:
                     pixel_bin_rep = "0"
