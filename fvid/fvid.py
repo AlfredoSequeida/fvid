@@ -311,7 +311,7 @@ def main():
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
     parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
-    parser.add_argument("-p", "--password", action="store_true")
+    parser.add_argument("-p", "--password", help="use this flag if you want to encrypt data with password", action="store_true")
     args = parser.parse_args()
 
     setup()
