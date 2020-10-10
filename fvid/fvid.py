@@ -1,9 +1,10 @@
 from bitstring import Bits, BitArray
-from magic import Magic
-import mimetypes
+# from magic import Magic
+# import mimetypes
 from PIL import Image
 import glob
 
+from operator import sub
 import numpy as np
 from tqdm import tqdm
 import ffmpeg
@@ -11,77 +12,77 @@ import ffmpeg
 import binascii
 
 import argparse
-
-
-import base64
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.fernet import Fernet
-import getpass 
-
 import sys
 import os
+
+import getpass 
 
 import io
 import gzip
 import pickle
 
-
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from Crypto.Cipher import AES
 
 DELIMITER = bin(int.from_bytes("HELLO MY NAME IS ALFREDO".encode(), "big"))
 FRAMES_DIR = "./fvid_frames/"
+SALT = '63929291bca3c602de64352a4d4bfe69'.encode()  # It need be the same in one instance of coding/decoding
+DEFAULT_KEY = ' '*32
+DEFAULT_KEY = DEFAULT_KEY.encode()
+NOTDEBUG = True
 
+class WrongPassword(Exception):
+    pass
 
-def get_password():
-    password_provided = getpass.getpass("Enter password:")
-    password = password_provided.encode()  
-    salt = b'fvid'  # CHANGE THIS - recommend using a key from os.urandom(16), must be of type bytes
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-        )
-    key = base64.urlsafe_b64encode(kdf.derive(password)) 
+class MissingArgument(Exception):
+    pass
+
+def get_password(password_provided):
+    if password_provided=='default':
+        return DEFAULT_KEY
+    else:
+        password_provided = getpass.getpass("Enter password:")
+        password = str(password_provided).encode()  
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA512(),
+            length=32,
+            salt=SALT,
+            iterations=100000,
+            backend=default_backend()
+            )
+        key = kdf.derive(password)
     return key
 
 
-
-def get_bits_from_file(filepath):
+def get_bits_from_file(filepath, key):
     print('Reading file...')
     bitarray = BitArray(filename=filepath)
-    bitarray.append(DELIMITER)
-    message = pickle.dumps({'filename': filepath, 'data' : str(bitarray.bin)})
-    bitarray2 = BitArray(message)
     # adding a delimiter to know when the file ends to avoid corrupted files
     # when retrieving
-
-    print('Bits are in place')
-    return bitarray2.bin
-
-def get_bits_from_file_crypto(filepath, key):
-    bitarray = BitArray(filename=filepath)
     bitarray.append(DELIMITER)
-    message = pickle.dumps({'filename': filepath, 'data' : str(bitarray.bin)})
-    # message = str(bitarray.bin).encode()
-    f = Fernet(key)
-    encrypted = f.encrypt(message)
-    #zip
-    # out = io.BytesIO()
-    # with gzip.GzipFile(fileobj=out, mode='w') as fo:
-        # fo.write(encrypted)
-    # encrypted_zip = out.getvalue()
-    #zip
-    
-    
-    # bitarray2 = BitArray(encrypted_zip)
-    bitarray2 = BitArray(encrypted)
-    print('Bits are in place')
-    return bitarray2.bin
 
+    cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
+    ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
+    
+    filename = os.path.basename(filepath)
+    pickled = pickle.dumps({'tag':tag,
+                            'data':ciphertext,
+                            'filename':filepath})
+    print('Ziping...')
+    #zip
+    out = io.BytesIO()
+    with gzip.GzipFile(fileobj=out, mode='w') as fo:
+        fo.write(pickled)
+    zip = out.getvalue()
+    #zip
 
+    bitarray = BitArray(zip)
+    return bitarray.bin
+
+def less(val1, val2):
+    return val1 < val2
 
 def get_bits_from_image(image):
     width, height = image.size
@@ -91,9 +92,6 @@ def get_bits_from_image(image):
     px = image.load()
     bits = ""
 
-    delimiter_str = DELIMITER.replace("0b", "")
-    delimiter_length = len(delimiter_str)
-
     pbar = tqdm(range(height), desc="Getting bits from frame")
 
     white = (255, 255, 255)
@@ -101,17 +99,6 @@ def get_bits_from_image(image):
     
     for y in pbar:
         for x in range(width):
-
-            # check if we have hit the delimiter
-            if bits[-delimiter_length:] == delimiter_str:
-                # remove delimiter from bit data to have an exact one to one
-                # copy when decoding
-
-                bits = bits[: len(bits) - delimiter_length]
-
-                pbar.close()
-
-                return (bits, True)
 
             pixel = px[x, y]
 
@@ -123,13 +110,14 @@ def get_bits_from_image(image):
             elif pixel == black:
                 pixel_bin_rep = "0"
             else:
-                white_diff = np.absolute(np.subtract(white, pixel))
+                white_diff = tuple(map(abs, map(sub, white, pixel)))
                 # min_diff = white_diff
-                black_diff = np.absolute(np.subtract(black, pixel))
+                black_diff = tuple(map(abs, map(sub, black, pixel)))
+
 
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                if np.less(white_diff, black_diff).all():
+                if all(map(less, white_diff, black_diff)):
                     pixel_bin_rep = "1"
                 else:
                     pixel_bin_rep = "0"
@@ -147,7 +135,7 @@ def get_bits_from_video(video_filepath):
 
     ffmpeg.input(video_filepath).output(
         f"{FRAMES_DIR}decoded_frames%03d.png"
-    ).run(quiet=True)
+    ).run(quiet=NOTDEBUG)
 
     for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
         image_sequence.append(Image.open(filename))
@@ -155,7 +143,7 @@ def get_bits_from_video(video_filepath):
     bits = ""
     sequence_length = len(image_sequence)
     print('Bits are in place')
-    for index in range(sequence_length):
+    for index in tqdm(range(sequence_length)):
         b, done = get_bits_from_image(image_sequence[index])
 
         bits += b
@@ -166,85 +154,55 @@ def get_bits_from_video(video_filepath):
     return bits
 
 
-def save_bits_to_file(file_path, bits):
+def save_bits_to_file(file_path, bits, key):
     # get file extension
 
     bitstring = Bits(bin=bits)
+
+    #zip
+    print('Unziping...')
+    in_ = io.BytesIO()
+    in_.write(bitstring.bytes)
+    in_.seek(0)
+    with gzip.GzipFile(fileobj=in_, mode='rb') as fo:
+        bitstring = fo.read()
+    #zip
+
+
+    unpickled = pickle.loads(bitstring)
+    tag = unpickled['tag']
+    ciphertext = unpickled['data']
+    filename = unpickled['filename']
     
-    _dict = pickle.loads(bitstring.tobytes())
-    filename = _dict['filename']
-    decrypted_bits_with_tail = _dict['data']
+    cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
+    bitstring = cipher.decrypt(ciphertext)
+    print('Checking integrity...')
+    try:
+     cipher.verify(tag)
+     # print("The message is authentic")
+    except ValueError:
+     raise WrongPassword("Key incorrect or message corrupted")
 
-    bitstring_with_tail = Bits(bin=decrypted_bits_with_tail)
-    bitstring_with_tail = bitstring_with_tail.bin
+    bitstring = BitArray(bitstring)
 
-    delimiter_str = DELIMITER.replace("0b", "")
-    delimiter_length = len(delimiter_str)
+    
+    _tD = Bits(bin=DELIMITER) # New way to find a DELIMITER
+    _tD = _tD.tobytes()
+    _temp = list(bitstring.split(delimiter=_tD))
+    bitstring = _temp[0]
 
-    if bitstring_with_tail[-delimiter_length:] == delimiter_str:
-        bitstring_with_tail = bitstring_with_tail[: len(bitstring_with_tail) - delimiter_length]
-
-    bitstring = Bits(bin=bitstring_with_tail)
-
-
-
-    # mime = Magic(mime=True)
-    # mime_type = mime.from_buffer(bitstring.tobytes())
 
     # If filepath not passed in use defualt
     #    otherwise used passed in filepath
     if file_path == None:
         filepath = filename
     else:
-        filepath = file_path
+        filepath = file_path # No need for mime Magic
 
     with open(
         filepath, "wb"
     ) as f:
         bitstring.tofile(f)
-
-def save_bits_to_file_crypto(file_path, bits, key):
-    bitstring_temp = Bits(bin=bits)
-    encrypted = bitstring_temp.tobytes()
-
-    # #zip
-    # in_ = io.BytesIO()
-    # in_.write(encrypted)
-    # in_.seek(0)
-    # with gzip.GzipFile(fileobj=in_, mode='rb') as fo:
-        # encrypted = fo.read()
-    # #zip
-
-    f = Fernet(key)
-    decrypted_bits = f.decrypt(encrypted)#.decode()
-    _dict = pickle.loads(decrypted_bits)
-    filename = _dict['filename']
-    decrypted_bits_with_tail = _dict['data']
-    
-    bitstring_with_tail = Bits(bin=decrypted_bits_with_tail)
-    bitstring_with_tail = bitstring_with_tail.bin
-    # print('decoded_bitstring', bitstring_with_tail)
-    delimiter_str = DELIMITER.replace("0b", "")
-    delimiter_length = len(delimiter_str)
-
-    if bitstring_with_tail[-delimiter_length:] == delimiter_str:
-        bitstring_with_tail = bitstring_with_tail[: len(bitstring_with_tail) - delimiter_length]
-
-    bitstring = Bits(bin=bitstring_with_tail)
-    
-    # mime = Magic(mime=True)
-    # mime_type = mime.from_buffer(bitstring.tobytes())
-
-    if file_path == None:
-        filepath = filename
-    else:
-        filepath = file_path
-
-    with open(
-        filepath, "wb"
-    ) as f:
-        bitstring.tofile(f)
-
 
 
 def make_image(bit_set, resolution=(1920, 1080)):
@@ -253,13 +211,12 @@ def make_image(bit_set, resolution=(1920, 1080)):
 
     image = Image.new("1", (width, height))
     image.putdata(bit_set)
-    print('Another frame')
+
     return image
 
 
 def split_list_by_n(lst, n):
-    print('Splitting image')
-    for i in tqdm(range(0, len(lst), n)):
+    for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
 
@@ -280,7 +237,6 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     image_sequence = []
 
     for bit_set in bit_sequence:
-        print('\nAnother image saved')
         image_sequence.append(make_image(bit_set))
 
     return image_sequence
@@ -300,7 +256,7 @@ def make_video(output_filepath, image_sequence, framerate="1/5"):
     if len(frames) == 1:
         ffmpeg.input(frames[0], loop=1, t=1).output(
             outputfile, vcodec="libx264rgb"
-        ).run(quiet=True)
+        ).run(quiet=NOTDEBUG)
 
     else:
         if sys.platform != 'win32':
@@ -308,9 +264,10 @@ def make_video(output_filepath, image_sequence, framerate="1/5"):
                 f"{FRAMES_DIR}encoded_frames*.png",
                 pattern_type="glob",
                 framerate=framerate,
-            ).output(outputfile, vcodec="libx264rgb").run(quiet=False)
+            ).output(outputfile, vcodec="libx264rgb").run(quiet=NOTDEBUG)
         else:
             os.system('ffmpeg -i ./fvid_frames/encoded_frames_%d.png ' + outputfile)
+
 
 
 def cleanup():
@@ -339,25 +296,28 @@ def main():
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
     parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
-    parser.add_argument("-p", "--password", help="set a password", action="store_true")
+    parser.add_argument("-p", "--password", help="set password", nargs="?", type=str, default='default')
+
     args = parser.parse_args()
 
     setup()
-
+    # print(args)
+    # print('PASSWORD', args.password, [len(args.password) if len(args.password) is not None else None for _ in range(0)])
+    
+    if not args.decode and not args.encode:
+        raise   MissingArgument('You should use either --encode or --decode!') #check for arguments
+    
+    key = get_password(args.password)
+    
     if args.decode:
-        if args.password:
-            key = get_password()
         bits = get_bits_from_video(args.input)
 
         file_path = None
 
         if args.output:
             file_path = args.output
-            
-        if args.password:
-            save_bits_to_file_crypto(file_path, bits, key)
-        else:
-            save_bits_to_file(file_path, bits)
+
+        save_bits_to_file(file_path, bits, key)
 
     elif args.encode:
         # isdigit has the benefit of being True and raising an error if the user passes a negative string
@@ -365,11 +325,7 @@ def main():
         if (not args.framerate.isdigit() and "/" not in args.framerate) or all(x in args.framerate for x in ("-", "/")):
             raise NotImplementedError("The framerate must be a positive fraction or an integer for now, like 3, '1/3', or '1/5'!")
         # get bits from file
-        if args.password:
-            key = get_password()
-            bits = get_bits_from_file_crypto(args.input, key)
-        else:
-            bits = get_bits_from_file(args.input)
+        bits = get_bits_from_file(args.input, key)
 
         # create image sequence
         image_sequence = make_image_sequence(bits)
