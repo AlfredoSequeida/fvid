@@ -185,8 +185,7 @@ def make_video(output_filepath, image_sequence, framerate="1/5"):
             f"{FRAMES_DIR}encoded_frames*.png",
             pattern_type="glob",
             framerate=framerate,
-        ).output(outputfile, vcodec="libx264rgb").run(quiet=True)
-
+        ).output(outputfile, r=30, vcodec="libx264rgb").run(quiet=True)
 
 
 def cleanup():
