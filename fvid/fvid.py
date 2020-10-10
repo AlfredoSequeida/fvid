@@ -249,7 +249,7 @@ def main():
         if args.output:
             file_path = args.output
 
-        save_bits_to_file(file_path, bits)
+        save_bits_to_file(file_path, bits, args.input)
 
     elif args.encode:
         # isdigit has the benefit of being True and raising an error if the user passes a negative string
