@@ -3,15 +3,32 @@ from magic import Magic
 import mimetypes
 from PIL import Image
 import glob
-
 from operator import sub
-import numpy as np
 from tqdm import tqdm
 import ffmpeg
-
 import binascii
-
 import argparse
+import sys
+import os
+import io
+import gzip
+import base64
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.fernet import Fernet
+import getpass
+
+try:
+    import cython
+except ImportError:
+    use_cython = False
+else:
+    use_cython = True
+
+if use_cython:
+    from fvid_cython import cy_get_bits_from_image as cy_gbfi
+
 
 DELIMITER = bin(int.from_bytes("HELLO MY NAME IS ALFREDO".encode(), "big"))
 FRAMES_DIR = "./fvid_frames/"
@@ -30,6 +47,12 @@ def less(val1, val2):
     return val1 < val2
 
 def get_bits_from_image(image):
+
+    if use_cython:
+        bits = cy_gbfi(image, DELIMITER)
+        return bits, True
+    
+
     width, height = image.size
 
     done = False
@@ -73,7 +96,6 @@ def get_bits_from_image(image):
                 # min_diff = white_diff
                 black_diff = tuple(map(abs, map(sub, black, pixel)))
 
-
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
                 if all(map(less, white_diff, black_diff)):
@@ -85,6 +107,7 @@ def get_bits_from_image(image):
             bits += pixel_bin_rep
 
     return (bits, done)
+
 
 
 def get_bits_from_video(video_filepath):
