@@ -16,6 +16,8 @@ import argparse
 DELIMITER = bin(int.from_bytes("HELLO MY NAME IS ALFREDO".encode(), "big"))
 FRAMES_DIR = "./fvid_frames/"
 
+class NoSuchFile(Exception):
+    pass
 
 def get_bits_from_file(filepath):
     bitarray = BitArray(filename=filepath)
@@ -91,9 +93,25 @@ def get_bits_from_video(video_filepath):
     # get image sequence from video
     image_sequence = []
 
-    ffmpeg.input(video_filepath).output(
-        f"{FRAMES_DIR}decoded_frames%03d.png"
-    ).run(quiet=True)
+    try:
+        ffmpeg.input(video_filepath).output(
+            f"{FRAMES_DIR}decoded_frames%03d.png"
+        ).run(quiet=True)
+    except ffmpeg._run.Error:
+        # they may have messed with the file extension, or they put in the wrong one
+        temp = video_filepath.split(".")
+        video_filepath = glob.glob(".".join(temp[:-1] + ['*'] + [temp[-1]]))
+        if len(video_filepath) > 0:
+            for path in video_filepath:
+                # if this fails idk what went wrong
+                try:
+                    ffmpeg.input(path).output(
+                        f"{FRAMES_DIR}decoded_frames%03d.png"
+                    ).run(quiet=True)
+                except ffmpeg._run.Error:
+                    continue
+        else:
+            raise NoSuchFile("There doesn't seem to be a file like that in the directory you specified!")
 
     for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
         image_sequence.append(Image.open(filename))
@@ -112,18 +130,14 @@ def get_bits_from_video(video_filepath):
     return bits
 
 
-def save_bits_to_file(file_path, bits):
-    # get file extension
-
-    bitstring = Bits(bin=bits)
-
-    mime = Magic(mime=True)
-    mime_type = mime.from_buffer(bitstring.tobytes())
+def save_bits_to_file(file_path, bits, video_name):
+    # get file extension/mime type
+    mime_type = "." + video_name.split(".")[-2] + ".mp4"
 
     # If filepath not passed in use defualt
     #    otherwise used passed in filepath
     if file_path == None:
-        filepath = f"file{mimetypes.guess_extension(type=mime_type)}"
+        filepath = f"file{mime_type}"
     else:
         filepath = file_path
 
@@ -131,6 +145,7 @@ def save_bits_to_file(file_path, bits):
         filepath, "wb"
     ) as f:
         bitstring.tofile(f)
+
 
 
 def make_image(bit_set, resolution=(1920, 1080)):
@@ -168,12 +183,14 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     return image_sequence
 
 
-def make_video(output_filepath, image_sequence, framerate="1/5"):
+def make_video(output_filepath, image_sequence, image_mime, framerate="1/5"):
 
     if output_filepath == None:
-        outputfile = "file.mp4"
+        outputfile = "file." + image_mime + ".mp4"
     else:
-        outputfile = output_filepath
+        temp = output_filepath.split(".")[:-1]
+        temp.extend([image_mime, "mp4"])
+        outputfile = ".".join(temp)
 
 
     frames = glob.glob(f"{FRAMES_DIR}encoded_frames*.png")
@@ -239,6 +256,9 @@ def main():
         # all() lets us check if both the negative sign and forward slash are in the string, to prevent negative fractions
         if (not args.framerate.isdigit() and "/" not in args.framerate) or all(x in args.framerate for x in ("-", "/")):
             raise NotImplementedError("The framerate must be a positive fraction or an integer for now, like 3, '1/3', or '1/5'!")
+                    
+        image_mime = args.input.split(".")[-1]
+        
         # get bits from file
         bits = get_bits_from_file(args.input)
 
@@ -256,6 +276,6 @@ def main():
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, image_sequence, args.framerate)
+        make_video(video_file_path, image_sequence, image_mime, args.framerate)
 
     cleanup()
