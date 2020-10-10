@@ -1,7 +1,17 @@
 import os
 import codecs
+import numpy
 
 from setuptools import setup
+from setuptools import Extension
+from setuptools.command.build_ext import build_ext as _build_ext
+
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    pass
+else:
+    cythonize(Extension("fvid_cython", "fvid/fvid_cython.pyx"), compiler_directives={'language_level': "3", 'infer_types': True})
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -41,10 +51,9 @@ setup(
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Operating System :: Microsoft :: Windows :: Windows 10",
         "Operating System :: Microsoft :: Windows :: Windows 8",
         "Operating System :: Microsoft :: Windows :: Windows 8.1",
@@ -57,9 +66,9 @@ setup(
         "bitstring",
         "python-magic",
         "pillow",
-        "numpy",
         "tqdm",
         "ffmpeg-python",
+        "cython >= 0.29.21",
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
