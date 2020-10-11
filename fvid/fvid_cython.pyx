@@ -1,4 +1,7 @@
 # distutils: language=c++
+# cython: boundscheck=False
+# cython: cdivision=True
+# cython: wraparound=False
 from operator import sub
 from tqdm import tqdm
 
