@@ -1,13 +1,11 @@
 from bitstring import Bits, BitArray
-# from magic import Magic
-# import mimetypes
 from PIL import Image
 import glob
 
 from operator import sub
 import numpy as np
 from tqdm import tqdm
-import ffmpeg
+
 
 import binascii
 
@@ -43,7 +41,9 @@ def get_password(password_provided):
     if password_provided=='default':
         return DEFAULT_KEY
     else:
-        password_provided = getpass.getpass("Enter password:")
+        if password_provided == None:
+            password_provided = getpass.getpass("Enter password:")
+
         password = str(password_provided).encode()  
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA512(),
@@ -53,7 +53,8 @@ def get_password(password_provided):
             backend=default_backend()
             )
         key = kdf.derive(password)
-    return key
+        return key
+
 
 
 def get_bits_from_file(filepath, key):
@@ -77,6 +78,9 @@ def get_bits_from_file(filepath, key):
         fo.write(pickled)
     zip = out.getvalue()
     #zip
+    
+    del bitarray
+    del pickled
 
     bitarray = BitArray(zip)
     return bitarray.bin
@@ -133,11 +137,10 @@ def get_bits_from_video(video_filepath):
     print('Reading video...')
     image_sequence = []
 
-    ffmpeg.input(video_filepath).output(
-        f"{FRAMES_DIR}decoded_frames%03d.png"
-    ).run(quiet=NOTDEBUG)
+    os.system('ffmpeg -i ' + video_filepath + ' ./fvid_frames/decoded_frames_%d.png');
 
-    for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
+    # for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
+    for filename in sorted(glob.glob(f"{FRAMES_DIR}decoded_frames*.png"), key=os.path.getmtime) :
         image_sequence.append(Image.open(filename))
 
     bits = ""
@@ -205,15 +208,6 @@ def save_bits_to_file(file_path, bits, key):
         bitstring.tofile(f)
 
 
-def make_image(bit_set, resolution=(1920, 1080)):
-
-    width, height = resolution
-
-    image = Image.new("1", (width, height))
-    image.putdata(bit_set)
-
-    return image
-
 
 def split_list_by_n(lst, n):
     for i in range(0, len(lst), n):
@@ -228,45 +222,38 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
 
     # bit_sequence = []
     print('Making image sequence')
-    list_bit = list(map(int, tqdm(bitstring)))
-    bit_sequence = split_list_by_n(list_bit, width * height)
-    image_bits = []
+    print('Cutting...')
+    bitlist = list(tqdm(split_list_by_n(bitstring, set_size)))
+    
+    del bitstring
+    
+    bitlist[-1] = bitlist[-1] + '0'*(set_size - len(bitlist[-1]))
 
-    # using bit_sequence to make image sequence
+    index = 1
+    bitlist = bitlist[::-1]
+    print('Saving frames...')
+    for _ in tqdm(range(len(bitlist))):
+        bitl = bitlist.pop()
+    # for bitl in tqdm(bitlist):
+        image_bits = list(map(int, tqdm(bitl)))
+        # print(image_bits)
 
-    image_sequence = []
+        image = Image.new("1", (width, height))
+        image.putdata(image_bits)
+        image.save(
+            f"{FRAMES_DIR}encoded_frames_{index}.png"
+        )
+        index += 1
 
-    for bit_set in bit_sequence:
-        image_sequence.append(make_image(bit_set))
 
-    return image_sequence
-
-
-def make_video(output_filepath, image_sequence, framerate="1/5"):
+def make_video(output_filepath, framerate="1/5"):
 
     if output_filepath == None:
         outputfile = "file.mp4"
     else:
         outputfile = output_filepath
 
-
-    frames = glob.glob(f"{FRAMES_DIR}encoded_frames*.png")
-
-    # for one frame
-    if len(frames) == 1:
-        ffmpeg.input(frames[0], loop=1, t=1).output(
-            outputfile, vcodec="libx264rgb"
-        ).run(quiet=NOTDEBUG)
-
-    else:
-        if sys.platform != 'win32':
-            ffmpeg.input(
-                f"{FRAMES_DIR}encoded_frames*.png",
-                pattern_type="glob",
-                framerate=framerate,
-            ).output(outputfile, vcodec="libx264rgb").run(quiet=NOTDEBUG)
-        else:
-            os.system('ffmpeg -i ./fvid_frames/encoded_frames_%d.png ' + outputfile)
+    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ' + outputfile)
 
 
 
@@ -328,19 +315,19 @@ def main():
         bits = get_bits_from_file(args.input, key)
 
         # create image sequence
-        image_sequence = make_image_sequence(bits)
+        make_image_sequence(bits)
 
         # save images
-        for index in range(len(image_sequence)):
-            image_sequence[index].save(
-                f"{FRAMES_DIR}encoded_frames_{index}.png"
-            )
+        # for index in range(len(image_sequence)):
+            # image_sequence[index].save(
+                # f"{FRAMES_DIR}encoded_frames_{index}.png"
+            # )
 
         video_file_path = None
 
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, image_sequence, args.framerate)
-
+        make_video(video_file_path, args.framerate)
+    
     cleanup()
