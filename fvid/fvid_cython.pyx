@@ -2,9 +2,6 @@
 from operator import sub
 from tqdm import tqdm
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.cdivision(True)
 cpdef cy_get_bits_from_image(image):
     cdef int width, height, x, y
     cdef str pixel_bin_rep
