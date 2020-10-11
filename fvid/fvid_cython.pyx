@@ -1,45 +1,24 @@
 # distutils: language=c++
+from operator import sub
 from tqdm import tqdm
-
-cdef bint less(int val1, int val2):
-    return val1 < val2
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
-cpdef str cy_get_bits_from_image(image, str DELIMITER):
-    cdef int width, height, delimiter_length, x, y
-    cdef bint done
-    cdef str bits, delimiter_str, pixel_bin_rep
-    #cdef tuple pixel
+cpdef cy_get_bits_from_image(image):
+    cdef int width, height, x, y
+    cdef str pixel_bin_rep
     cdef tuple white_diff, black_diff, pixel
 
     width, height = image.size
 
-    done = False
-
     px = image.load()
     bits = ""
-
-    delimiter_str = DELIMITER[2:]
-    delimiter_length = len(delimiter_str)
 
     pbar = tqdm(range(height), desc="Getting bits from frame")
     
     for y in pbar:
         for x in range(width):
-
-            # check if we have hit the delimiter
-            if bits[-delimiter_length:] == delimiter_str:
-                # remove delimiter from bit data to have an exact one to one
-                # copy when decoding
-
-                bits = bits[: len(bits) - delimiter_length]
-
-                pbar.close()
-
-                return bits
-
             pixel = px[x, y]
 
             pixel_bin_rep = "0"
@@ -56,7 +35,7 @@ cpdef str cy_get_bits_from_image(image, str DELIMITER):
 
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                if all((less(white_diff[0], black_diff[0]), less(white_diff[1], black_diff[1]), less(white_diff[2], black_diff[2]))):
+                if all((white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])):
                     pixel_bin_rep = "1"
                 else:
                     pixel_bin_rep = "0"
