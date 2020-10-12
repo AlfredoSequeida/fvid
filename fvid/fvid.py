@@ -62,7 +62,7 @@ def get_bits_from_file(filepath, key):
     bitarray = BitArray(filename=filepath)
     # adding a delimiter to know when the file ends to avoid corrupted files
     # when retrieving
-    bitarray.append(DELIMITER)
+    # bitarray.append(DELIMITER)
 
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
     ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
@@ -188,13 +188,6 @@ def save_bits_to_file(file_path, bits, key):
 
     bitstring = BitArray(bitstring)
 
-    
-    _tD = Bits(bin=DELIMITER) # New way to find a DELIMITER
-    _tD = _tD.tobytes()
-    _temp = list(bitstring.split(delimiter=_tD))
-    bitstring = _temp[0]
-
-
     # If filepath not passed in use defualt
     #    otherwise used passed in filepath
     if file_path == None:
@@ -213,10 +206,9 @@ def split_list_by_n(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
-
 def make_image_sequence(bitstring, resolution=(1920, 1080)):
     width, height = resolution
-
+    maxval = 1
     # split bits into sets of width*height to make (1) image
     set_size = width * height
 
@@ -229,21 +221,20 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     
     bitlist[-1] = bitlist[-1] + '0'*(set_size - len(bitlist[-1]))
 
-    index = 1
     bitlist = bitlist[::-1]
+    ppm_header = f'P3 \n{width} {height} \n{maxval}\n'
+    
+    
     print('Saving frames...')
-    for _ in tqdm(range(len(bitlist))):
+    for index in tqdm(range(len(bitlist))):
         bitl = bitlist.pop()
-    # for bitl in tqdm(bitlist):
-        image_bits = list(map(int, tqdm(bitl)))
-        # print(image_bits)
-
-        image = Image.new("1", (width, height))
-        image.putdata(image_bits)
-        image.save(
-            f"{FRAMES_DIR}encoded_frames_{index}.png"
-        )
-        index += 1
+        # print('bitl', bitl)
+        bitl = list(split_list_by_n(bitl, width))
+        bitl = [' '.join([' '.join([_]*3) for _ in list(row)]) for row in bitl]
+        image = ppm_header + '\n'.join(bitl)
+        path = f"{FRAMES_DIR}encoded_frames_{index+1}.ppm"
+        with open(path, 'w') as f:
+            f.write(image)
 
 
 def make_video(output_filepath, framerate="1/5"):
@@ -253,7 +244,7 @@ def make_video(output_filepath, framerate="1/5"):
     else:
         outputfile = output_filepath
 
-    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ' + outputfile)
+    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.ppm -c:v libx264rgb ' + outputfile)
 
 
 
