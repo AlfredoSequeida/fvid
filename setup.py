@@ -1,17 +1,18 @@
 import os
 import codecs
 import numpy
+from distutils.core import Extension, setup
+from Cython.Build import cythonize
 
-from setuptools import setup
-from setuptools import Extension
-from setuptools.command.build_ext import build_ext as _build_ext
+ext = Extension(name="fvid_cython", sources=["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])
+setup(ext_modules=cythonize(ext, compiler_directives={'language_level': 3}))
 
 try:
     from Cython.Build import cythonize
 except ImportError:
     pass
 else:
-    cythonize(Extension("fvid_cython", "fvid/fvid_cython.pyx"), compiler_directives={'language_level': "3", 'infer_types': True})
+    cythonize(Extension("fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"]), compiler_directives={'language_level': "3", 'infer_types': True})
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
