@@ -1,6 +1,5 @@
 import os
 import codecs
-import numpy
 from distutils.core import Extension, setup
 from Cython.Build import cythonize
 
@@ -65,10 +64,8 @@ setup(
     packages=["fvid"],
     install_requires=[
         "bitstring",
-        "python-magic",
         "pillow",
         "tqdm",
-        "ffmpeg-python",
         "cython >= 0.29.21",
     ],
     python_requires=">=3.6",
