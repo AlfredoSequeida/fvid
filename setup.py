@@ -1,17 +1,28 @@
 import os
 import codecs
-from distutils.core import Extension, setup
-from Cython.Build import cythonize
-
-ext = Extension(name="fvid_cython", sources=["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])
-setup(ext_modules=cythonize(ext, compiler_directives={'language_level': 3}))
+from setuptools import setup
+from setuptools import Extension
+from setuptools.command.build_ext import build_ext as _build_ext
 
 try:
     from Cython.Build import cythonize
-except (ImportError, ModuleNotFoundError):
-    pass
+except ImportError:
+    use_cython = False
+    ext = 'c'
 else:
-    cythonize(Extension("fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"]), compiler_directives={'language_level': "3", 'infer_types': True})
+    use_cython = True
+    ext = 'pyx'
+
+if not use_cython:
+    extensions = Extension("fvid.fvid_cython", ["fvid/fvid_cython.cpp"], include_dirs=["./fvid", "fvid/"])
+else:
+    extensions = Extension("fvid.fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])
+    extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
+
+
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -62,12 +73,18 @@ setup(
     ],
     license="MIT",
     packages=["fvid"],
+    setup_requires=[
+        "cython >= 3.0a6"
+    ],
     install_requires=[
         "bitstring",
         "pillow",
-        "tqdm",
-        "cython >= 3.0a6",
+        "tqdm"
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
+    ext_modules=extensions,
+    cmdclass={'build_ext': build_ext},
+    include_package_data=True
+    zip_safe=False,
 )
