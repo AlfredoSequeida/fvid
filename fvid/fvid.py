@@ -6,7 +6,6 @@ from operator import sub
 import numpy as np
 from tqdm import tqdm
 
-
 import binascii
 
 import argparse
@@ -24,7 +23,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from Crypto.Cipher import AES
 
-DELIMITER = bin(int.from_bytes("HELLO MY NAME IS ALFREDO".encode(), "big"))
+
 FRAMES_DIR = "./fvid_frames/"
 SALT = '63929291bca3c602de64352a4d4bfe69'.encode()  # It need be the same in one instance of coding/decoding
 DEFAULT_KEY = ' '*32
@@ -62,7 +61,6 @@ def get_bits_from_file(filepath, key):
     bitarray = BitArray(filename=filepath)
     # adding a delimiter to know when the file ends to avoid corrupted files
     # when retrieving
-    # bitarray.append(DELIMITER)
 
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
     ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
@@ -96,8 +94,7 @@ def get_bits_from_image(image):
     px = image.load()
     bits = ""
 
-    pbar = tqdm(range(height), desc="Getting bits from frame")
-
+    pbar = range(height)
     white = (255, 255, 255)
     black = (0, 0, 0)
     
@@ -146,7 +143,7 @@ def get_bits_from_video(video_filepath):
     bits = ""
     sequence_length = len(image_sequence)
     print('Bits are in place')
-    for index in tqdm(range(sequence_length)):
+    for index in range(sequence_length):
         b, done = get_bits_from_image(image_sequence[index])
 
         bits += b
@@ -182,11 +179,11 @@ def save_bits_to_file(file_path, bits, key):
     print('Checking integrity...')
     try:
      cipher.verify(tag)
-     # print("The message is authentic")
     except ValueError:
      raise WrongPassword("Key incorrect or message corrupted")
 
     bitstring = BitArray(bitstring)
+
 
     # If filepath not passed in use defualt
     #    otherwise used passed in filepath
@@ -206,35 +203,39 @@ def split_list_by_n(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
+
 def make_image_sequence(bitstring, resolution=(1920, 1080)):
     width, height = resolution
-    maxval = 1
+
     # split bits into sets of width*height to make (1) image
     set_size = width * height
 
     # bit_sequence = []
     print('Making image sequence')
     print('Cutting...')
-    bitlist = list(tqdm(split_list_by_n(bitstring, set_size)))
+    #bitlist = list(tqdm(split_list_by_n(bitstring, set_size)))
+    bitlist = list(split_list_by_n(bitstring, set_size))
     
     del bitstring
     
     bitlist[-1] = bitlist[-1] + '0'*(set_size - len(bitlist[-1]))
 
+    index = 1
     bitlist = bitlist[::-1]
-    ppm_header = f'P3 \n{width} {height} \n{maxval}\n'
-    
-    
     print('Saving frames...')
-    for index in tqdm(range(len(bitlist))):
+    for _ in tqdm(range(len(bitlist))):
         bitl = bitlist.pop()
-        # print('bitl', bitl)
-        bitl = list(split_list_by_n(bitl, width))
-        bitl = [' '.join([' '.join([_]*3) for _ in list(row)]) for row in bitl]
-        image = ppm_header + '\n'.join(bitl)
-        path = f"{FRAMES_DIR}encoded_frames_{index+1}.ppm"
-        with open(path, 'w') as f:
-            f.write(image)
+    # for bitl in tqdm(bitlist):
+        # image_bits = list(map(int, tqdm(bitl)))
+        image_bits = list(map(int, bitl))
+        # print(image_bits)
+
+        image = Image.new("1", (width, height))
+        image.putdata(image_bits)
+        image.save(
+            f"{FRAMES_DIR}encoded_frames_{index}.png"
+        )
+        index += 1
 
 
 def make_video(output_filepath, framerate="1/5"):
@@ -244,7 +245,7 @@ def make_video(output_filepath, framerate="1/5"):
     else:
         outputfile = output_filepath
 
-    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.ppm -c:v libx264rgb ' + outputfile)
+    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ' + outputfile)
 
 
 
@@ -279,8 +280,9 @@ def main():
     args = parser.parse_args()
 
     setup()
-    # print(args)
-    # print('PASSWORD', args.password, [len(args.password) if len(args.password) is not None else None for _ in range(0)])
+    if not NOTDEBUG:
+        print('args', args)
+        print('PASSWORD', args.password, [len(args.password) if len(args.password) is not None else None for _ in range(0)])
     
     if not args.decode and not args.encode:
         raise   MissingArgument('You should use either --encode or --decode!') #check for arguments
@@ -308,11 +310,6 @@ def main():
         # create image sequence
         make_image_sequence(bits)
 
-        # save images
-        # for index in range(len(image_sequence)):
-            # image_sequence[index].save(
-                # f"{FRAMES_DIR}encoded_frames_{index}.png"
-            # )
 
         video_file_path = None
 
