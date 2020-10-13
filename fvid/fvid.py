@@ -143,7 +143,7 @@ def get_bits_from_video(video_filepath):
     bits = ""
     sequence_length = len(image_sequence)
     print('Bits are in place')
-    for index in range(sequence_length):
+    for index in tqdm(range(sequence_length)):
         b, done = get_bits_from_image(image_sequence[index])
 
         bits += b
