@@ -1,7 +1,17 @@
 import os
 import codecs
+from distutils.core import Extension, setup
+from Cython.Build import cythonize
 
-from setuptools import setup
+ext = Extension(name="fvid_cython", sources=["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])
+setup(ext_modules=cythonize(ext, compiler_directives={'language_level': 3}))
+
+try:
+    from Cython.Build import cythonize
+except (ImportError, ModuleNotFoundError):
+    pass
+else:
+    cythonize(Extension("fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"]), compiler_directives={'language_level': "3", 'infer_types': True})
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -41,10 +51,9 @@ setup(
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Operating System :: Microsoft :: Windows :: Windows 10",
         "Operating System :: Microsoft :: Windows :: Windows 8",
         "Operating System :: Microsoft :: Windows :: Windows 8.1",
@@ -55,11 +64,9 @@ setup(
     packages=["fvid"],
     install_requires=[
         "bitstring",
-        "python-magic",
         "pillow",
-        "numpy",
         "tqdm",
-        "ffmpeg-python",
+        "cython >= 3.0a6",
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
