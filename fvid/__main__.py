@@ -1,5 +1,10 @@
 import sys
-from fvid_python import main
+import platform
+running_os = platform.system()
+if running_os.lower() in ('linux', 'darwin'):
+    from fvid import main
+else:
+    from fvid.fvid import main
 
 if __name__ == '__main__':
-    sys.exit(main())
+	sys.exit(main())
