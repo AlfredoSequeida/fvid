@@ -79,7 +79,8 @@ setup(
     install_requires=[
         "bitstring",
         "pillow",
-        "tqdm"
+        "tqdm",
+        "distro"
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
