@@ -80,7 +80,8 @@ setup(
         "bitstring",
         "pillow",
         "tqdm",
-        "cryptography >= 3.1.1"
+        "cryptography >= 3.1.1",
+        "pycryptodome >= 3.9.8"
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
