@@ -3,7 +3,6 @@ from PIL import Image
 import glob
 
 from operator import sub
-import numpy as np
 from tqdm import tqdm
 
 import binascii
@@ -25,10 +24,9 @@ from Crypto.Cipher import AES
 
 try:
     from fvid_cython import cy_get_bits_from_image as cy_gbfi
+    use_cython = True
 except (ImportError, ModuleNotFoundError):
     use_cython = False
-else:
-    use_cython = True
 
 FRAMES_DIR = "./fvid_frames/"
 SALT = '63929291bca3c602de64352a4d4bfe69'.encode()  # It need be the same in one instance of coding/decoding
