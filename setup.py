@@ -80,7 +80,6 @@ setup(
         "bitstring",
         "pillow",
         "tqdm",
-        "distro",
         "cryptography >= 3.1.1"
     ],
     python_requires=">=3.6",
