@@ -2,10 +2,8 @@
 # cython: boundscheck=False
 # cython: cdivision=True
 # cython: wraparound=False
-from operator import sub
-from tqdm import tqdm
 
-cpdef cy_get_bits_from_image(image):
+cpdef str cy_get_bits_from_image(image):
     cdef int width, height, x, y
     cdef str pixel_bin_rep
     cdef tuple white_diff, black_diff, pixel
