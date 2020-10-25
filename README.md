@@ -37,12 +37,16 @@ Linux/OSX
 
 ```
 fvid -i [input file] -e
+fvid -i [input file] --framerate 30 -e
+fvid -i [input file] --password "wow fvid is cool" -e
 ```
 
 Windows 
 
 ```
 py -m fvid -i [input file] -e
+py -m fvid -i [input file] --framerate 30 -e
+py -m fvid -i [input file] --password "wow fvid is cool" -e
 ```
 
 Retrieving data from videos
@@ -59,6 +63,7 @@ Windows
 py -m fvid -i [input video] -d
 ```
 
+If the file was encoded with a non-default password, it'll prompt you to enter the password upon decoding.
  
  How to Contribute
 -----------------
