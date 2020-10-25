@@ -6,8 +6,7 @@
 cpdef cy_get_bits_from_image(image):
     cdef int width, height, x, y
     cdef str pixel_bin_rep
-    cdef (int, int, int) pixel, white_diff, black_diff
-    cdef (bint, bint, bint) truth_tuple
+    cdef (int, int, int) pixel#, white_diff, black_diff
 
     width, height = image.size
 
@@ -26,14 +25,9 @@ cpdef cy_get_bits_from_image(image):
             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
                 pixel_bin_rep = <str>"0"
             else:
-                white_diff = (abs(pixel[0] - 255), abs(pixel[1] - 255), abs(pixel[2] - 255))
-                # min_diff = white_diff
-                black_diff = (abs(pixel[0] - 0), abs(pixel[1] - 0), abs(pixel[2] - 0))
-
-                # if the white difference is smaller, that means the pixel is closer
+                # if the white difference is smaller (comparison part 1), that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                truth_tuple = (white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])
-                if all(truth_tuple):
+                if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
                     pixel_bin_rep = <str>"1"
                 else:
                     pixel_bin_rep = <str>"0"
