@@ -234,7 +234,7 @@ def make_video(output_filepath, framerate="1/5"):
     else:
         outputfile = output_filepath
 
-    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb -tune zerolatency ' + outputfile)
+    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ' + outputfile)
 
 
 
