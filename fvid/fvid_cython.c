@@ -1033,10 +1033,10 @@ typedef struct __pyx_ctuple_int__and_int__and_int __pyx_ctuple_int__and_int__and
 
 /* "fvid_cython.pyx":9
  *     cdef int width, height, x, y
- *     cdef str pixel_bin_rep
- *     cdef (int, int, int) pixel, white_diff, black_diff             # <<<<<<<<<<<<<<
- *     cdef (bint, bint, bint) truth_tuple
+ *     cdef str pixel_bin_rep, bits
+ *     cdef (int, int, int) pixel             # <<<<<<<<<<<<<<
  * 
+ *     width, height = image.size
  */
 struct __pyx_ctuple_int__and_int__and_int {
   int f0;
@@ -1490,9 +1490,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 /* FromPyCTupleUtility.proto */
 static __pyx_ctuple_int__and_int__and_int __pyx_convert__from_py___pyx_ctuple_int__and_int__and_int(PyObject *);
 
-/* ToPyCTupleUtility.proto */
-static PyObject* __pyx_convert__to_py___pyx_ctuple_int__and_int__and_int(__pyx_ctuple_int__and_int__and_int);
-
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
@@ -1557,13 +1554,11 @@ int __pyx_module_is_main_fvid_cython = 0;
 /* Implementation of "fvid_cython" */
 /* #### Code section: global_var ### */
 static PyObject *__pyx_builtin_range;
-static PyObject *__pyx_builtin_all;
 /* #### Code section: string_decls ### */
 static const char __pyx_k_[] = "";
 static const char __pyx_k_0[] = "0";
 static const char __pyx_k_1[] = "1";
 static const char __pyx_k__4[] = "?";
-static const char __pyx_k_all[] = "all";
 static const char __pyx_k_load[] = "load";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
@@ -1581,7 +1576,6 @@ static PyObject *__pyx_kp_u_;
 static PyObject *__pyx_kp_u_0;
 static PyObject *__pyx_kp_u_1;
 static PyObject *__pyx_n_s__4;
-static PyObject *__pyx_n_s_all;
 static PyObject *__pyx_n_s_class_getitem;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_cy_get_bits_from_image;
@@ -1623,7 +1617,6 @@ typedef struct {
   PyObject *__pyx_kp_u_0;
   PyObject *__pyx_kp_u_1;
   PyObject *__pyx_n_s__4;
-  PyObject *__pyx_n_s_all;
   PyObject *__pyx_n_s_class_getitem;
   PyObject *__pyx_n_s_cline_in_traceback;
   PyObject *__pyx_n_s_cy_get_bits_from_image;
@@ -1675,7 +1668,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_u_0);
   Py_CLEAR(clear_module_state->__pyx_kp_u_1);
   Py_CLEAR(clear_module_state->__pyx_n_s__4);
-  Py_CLEAR(clear_module_state->__pyx_n_s_all);
   Py_CLEAR(clear_module_state->__pyx_n_s_class_getitem);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
   Py_CLEAR(clear_module_state->__pyx_n_s_cy_get_bits_from_image);
@@ -1714,7 +1706,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_u_0);
   Py_VISIT(traverse_module_state->__pyx_kp_u_1);
   Py_VISIT(traverse_module_state->__pyx_n_s__4);
-  Py_VISIT(traverse_module_state->__pyx_n_s_all);
   Py_VISIT(traverse_module_state->__pyx_n_s_class_getitem);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
   Py_VISIT(traverse_module_state->__pyx_n_s_cy_get_bits_from_image);
@@ -1750,7 +1741,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_u_0 __pyx_mstate_global->__pyx_kp_u_0
 #define __pyx_kp_u_1 __pyx_mstate_global->__pyx_kp_u_1
 #define __pyx_n_s__4 __pyx_mstate_global->__pyx_n_s__4
-#define __pyx_n_s_all __pyx_mstate_global->__pyx_n_s_all
 #define __pyx_n_s_class_getitem __pyx_mstate_global->__pyx_n_s_class_getitem
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
 #define __pyx_n_s_cy_get_bits_from_image __pyx_mstate_global->__pyx_n_s_cy_get_bits_from_image
@@ -1771,9 +1761,9 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
- *     cdef str pixel_bin_rep
+ *     cdef str pixel_bin_rep, bits
  */
 
 static PyObject *__pyx_pw_11fvid_cython_1cy_get_bits_from_image(PyObject *__pyx_self, 
@@ -1789,12 +1779,9 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   int __pyx_v_x;
   int __pyx_v_y;
   PyObject *__pyx_v_pixel_bin_rep = 0;
+  PyObject *__pyx_v_bits = 0;
   __pyx_ctuple_int__and_int__and_int __pyx_v_pixel;
-  __pyx_ctuple_int__and_int__and_int __pyx_v_white_diff;
-  __pyx_ctuple_int__and_int__and_int __pyx_v_black_diff;
-  __pyx_ctuple_int__and_int__and_int __pyx_v_truth_tuple;
   PyObject *__pyx_v_px = NULL;
-  PyObject *__pyx_v_bits = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1813,20 +1800,19 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   int __pyx_t_14;
   long __pyx_t_15;
   long __pyx_t_16;
-  long __pyx_t_17;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("cy_get_bits_from_image", 0);
 
-  /* "fvid_cython.pyx":12
- *     cdef (bint, bint, bint) truth_tuple
+  /* "fvid_cython.pyx":11
+ *     cdef (int, int, int) pixel
  * 
  *     width, height = image.size             # <<<<<<<<<<<<<<
  * 
  *     px = image.load()
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if ((likely(PyTuple_CheckExact(__pyx_t_1))) || (PyList_CheckExact(__pyx_t_1))) {
     PyObject* sequence = __pyx_t_1;
@@ -1834,7 +1820,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 12, __pyx_L1_error)
+      __PYX_ERR(0, 11, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -1847,15 +1833,15 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_t_3);
     #else
-    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 12, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 12, __pyx_L1_error)
+    __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 11, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_5 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_4);
@@ -1863,7 +1849,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     __Pyx_GOTREF(__pyx_t_2);
     index = 1; __pyx_t_3 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_3)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_3);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 2) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 2) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
     __pyx_t_5 = NULL;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     goto __pyx_L4_unpacking_done;
@@ -1871,24 +1857,24 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 12, __pyx_L1_error)
+    __PYX_ERR(0, 11, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_width = __pyx_t_6;
   __pyx_v_height = __pyx_t_7;
 
-  /* "fvid_cython.pyx":14
+  /* "fvid_cython.pyx":13
  *     width, height = image.size
  * 
  *     px = image.load()             # <<<<<<<<<<<<<<
  *     bits = ""
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = NULL;
   __pyx_t_7 = 0;
@@ -1906,14 +1892,14 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     PyObject *__pyx_callargs[1] = {__pyx_t_2, };
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_7, 0+__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __pyx_v_px = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "fvid_cython.pyx":15
+  /* "fvid_cython.pyx":14
  * 
  *     px = image.load()
  *     bits = ""             # <<<<<<<<<<<<<<
@@ -1923,7 +1909,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   __Pyx_INCREF(__pyx_kp_u_);
   __pyx_v_bits = __pyx_kp_u_;
 
-  /* "fvid_cython.pyx":17
+  /* "fvid_cython.pyx":16
  *     bits = ""
  * 
  *     for y in range(height):             # <<<<<<<<<<<<<<
@@ -1935,7 +1921,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_6; __pyx_t_8+=1) {
     __pyx_v_y = __pyx_t_8;
 
-    /* "fvid_cython.pyx":18
+    /* "fvid_cython.pyx":17
  * 
  *     for y in range(height):
  *         for x in range(width):             # <<<<<<<<<<<<<<
@@ -1947,18 +1933,18 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_x = __pyx_t_11;
 
-      /* "fvid_cython.pyx":19
+      /* "fvid_cython.pyx":18
  *     for y in range(height):
  *         for x in range(width):
  *             pixel = px[x, y]             # <<<<<<<<<<<<<<
  * 
  *             pixel_bin_rep = <str>"0"
  */
-      __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 19, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
+      __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
@@ -1966,14 +1952,14 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
       PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3);
       __pyx_t_1 = 0;
       __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_px, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 19, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_px, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_12 = __pyx_convert__from_py___pyx_ctuple_int__and_int__and_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L1_error)
+      __pyx_t_12 = __pyx_convert__from_py___pyx_ctuple_int__and_int__and_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_pixel = __pyx_t_12;
 
-      /* "fvid_cython.pyx":21
+      /* "fvid_cython.pyx":20
  *             pixel = px[x, y]
  * 
  *             pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
@@ -1985,7 +1971,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
       __Pyx_XDECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
       __pyx_t_3 = 0;
 
-      /* "fvid_cython.pyx":24
+      /* "fvid_cython.pyx":23
  * 
  *             # for exact matches, indexing each pixel individually is faster in cython for some reason
  *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:             # <<<<<<<<<<<<<<
@@ -2009,7 +1995,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_13) {
 
-        /* "fvid_cython.pyx":25
+        /* "fvid_cython.pyx":24
  *             # for exact matches, indexing each pixel individually is faster in cython for some reason
  *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
  *                 pixel_bin_rep = <str>"1"             # <<<<<<<<<<<<<<
@@ -2021,7 +2007,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
         __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
         __pyx_t_3 = 0;
 
-        /* "fvid_cython.pyx":24
+        /* "fvid_cython.pyx":23
  * 
  *             # for exact matches, indexing each pixel individually is faster in cython for some reason
  *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:             # <<<<<<<<<<<<<<
@@ -2031,7 +2017,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
         goto __pyx_L9;
       }
 
-      /* "fvid_cython.pyx":26
+      /* "fvid_cython.pyx":25
  *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
  *                 pixel_bin_rep = <str>"1"
  *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:             # <<<<<<<<<<<<<<
@@ -2055,19 +2041,19 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
       __pyx_L13_bool_binop_done:;
       if (__pyx_t_13) {
 
-        /* "fvid_cython.pyx":27
+        /* "fvid_cython.pyx":26
  *                 pixel_bin_rep = <str>"1"
  *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
  *                 pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
  *             else:
- *                 white_diff = (abs(pixel[0] - 255), abs(pixel[1] - 255), abs(pixel[2] - 255))
+ *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
  */
         __pyx_t_3 = __pyx_kp_u_0;
         __Pyx_INCREF(__pyx_t_3);
         __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
         __pyx_t_3 = 0;
 
-        /* "fvid_cython.pyx":26
+        /* "fvid_cython.pyx":25
  *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
  *                 pixel_bin_rep = <str>"1"
  *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:             # <<<<<<<<<<<<<<
@@ -2077,88 +2063,60 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
         goto __pyx_L9;
       }
 
-      /* "fvid_cython.pyx":29
- *                 pixel_bin_rep = <str>"0"
- *             else:
- *                 white_diff = (abs(pixel[0] - 255), abs(pixel[1] - 255), abs(pixel[2] - 255))             # <<<<<<<<<<<<<<
- *                 # min_diff = white_diff
- *                 black_diff = (abs(pixel[0] - 0), abs(pixel[1] - 0), abs(pixel[2] - 0))
- */
-      /*else*/ {
-        __pyx_t_15 = labs((__pyx_v_pixel.f0 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 29, __pyx_L1_error)
-        __pyx_t_16 = labs((__pyx_v_pixel.f1 - 0xFF)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 29, __pyx_L1_error)
-        __pyx_t_17 = labs((__pyx_v_pixel.f2 - 0xFF)); if (unlikely(__pyx_t_17 == ((long)-1))) __PYX_ERR(0, 29, __pyx_L1_error)
-        __pyx_t_12.f0 = __pyx_t_15;
-        __pyx_t_12.f1 = __pyx_t_16;
-        __pyx_t_12.f2 = __pyx_t_17;
-        __pyx_v_white_diff = __pyx_t_12;
-
-        /* "fvid_cython.pyx":31
- *                 white_diff = (abs(pixel[0] - 255), abs(pixel[1] - 255), abs(pixel[2] - 255))
- *                 # min_diff = white_diff
- *                 black_diff = (abs(pixel[0] - 0), abs(pixel[1] - 0), abs(pixel[2] - 0))             # <<<<<<<<<<<<<<
- * 
- *                 # if the white difference is smaller, that means the pixel is closer
- */
-        __pyx_t_17 = labs((__pyx_v_pixel.f0 - 0)); if (unlikely(__pyx_t_17 == ((long)-1))) __PYX_ERR(0, 31, __pyx_L1_error)
-        __pyx_t_16 = labs((__pyx_v_pixel.f1 - 0)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 31, __pyx_L1_error)
-        __pyx_t_15 = labs((__pyx_v_pixel.f2 - 0)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 31, __pyx_L1_error)
-        __pyx_t_12.f0 = __pyx_t_17;
-        __pyx_t_12.f1 = __pyx_t_16;
-        __pyx_t_12.f2 = __pyx_t_15;
-        __pyx_v_black_diff = __pyx_t_12;
-
-        /* "fvid_cython.pyx":35
- *                 # if the white difference is smaller, that means the pixel is closer
+      /* "fvid_cython.pyx":30
+ *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
  *                 # to white, otherwise, the pixel must be black
- *                 truth_tuple = (white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])             # <<<<<<<<<<<<<<
- *                 if all(truth_tuple):
- *                     pixel_bin_rep = <str>"1"
- */
-        __pyx_t_12.f0 = (__pyx_v_white_diff.f0 < __pyx_v_black_diff.f0);
-        __pyx_t_12.f1 = (__pyx_v_white_diff.f1 < __pyx_v_black_diff.f1);
-        __pyx_t_12.f2 = (__pyx_v_white_diff.f2 < __pyx_v_black_diff.f2);
-        __pyx_v_truth_tuple = __pyx_t_12;
-
-        /* "fvid_cython.pyx":36
- *                 # to white, otherwise, the pixel must be black
- *                 truth_tuple = (white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])
- *                 if all(truth_tuple):             # <<<<<<<<<<<<<<
+ *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
  *                     pixel_bin_rep = <str>"1"
  *                 else:
  */
-        __pyx_t_3 = __pyx_convert__to_py___pyx_ctuple_int__and_int__and_int(__pyx_v_truth_tuple); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_all, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 36, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      /*else*/ {
+        __pyx_t_15 = labs((__pyx_v_pixel.f0 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_16 = labs((__pyx_v_pixel.f0 - 0)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_14 = ((__pyx_t_15 < __pyx_t_16) != 0);
+        if (__pyx_t_14) {
+        } else {
+          __pyx_t_13 = __pyx_t_14;
+          goto __pyx_L17_bool_binop_done;
+        }
+        __pyx_t_16 = labs((__pyx_v_pixel.f1 - 0xFF)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_15 = labs((__pyx_v_pixel.f1 - 0)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_14 = ((__pyx_t_16 < __pyx_t_15) != 0);
+        if (__pyx_t_14) {
+        } else {
+          __pyx_t_13 = __pyx_t_14;
+          goto __pyx_L17_bool_binop_done;
+        }
+        __pyx_t_15 = labs((__pyx_v_pixel.f2 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_16 = labs((__pyx_v_pixel.f2 - 0)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
+        __pyx_t_14 = ((__pyx_t_15 < __pyx_t_16) != 0);
+        __pyx_t_13 = __pyx_t_14;
+        __pyx_L17_bool_binop_done:;
         if (__pyx_t_13) {
 
-          /* "fvid_cython.pyx":37
- *                 truth_tuple = (white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])
- *                 if all(truth_tuple):
+          /* "fvid_cython.pyx":31
+ *                 # to white, otherwise, the pixel must be black
+ *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
  *                     pixel_bin_rep = <str>"1"             # <<<<<<<<<<<<<<
  *                 else:
  *                     pixel_bin_rep = <str>"0"
  */
-          __pyx_t_2 = __pyx_kp_u_1;
-          __Pyx_INCREF(__pyx_t_2);
-          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_2));
-          __pyx_t_2 = 0;
+          __pyx_t_3 = __pyx_kp_u_1;
+          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
+          __pyx_t_3 = 0;
 
-          /* "fvid_cython.pyx":36
+          /* "fvid_cython.pyx":30
+ *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
  *                 # to white, otherwise, the pixel must be black
- *                 truth_tuple = (white_diff[0] < black_diff[0], white_diff[1] < black_diff[1], white_diff[2] < black_diff[2])
- *                 if all(truth_tuple):             # <<<<<<<<<<<<<<
+ *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
  *                     pixel_bin_rep = <str>"1"
  *                 else:
  */
           goto __pyx_L16;
         }
 
-        /* "fvid_cython.pyx":39
+        /* "fvid_cython.pyx":33
  *                     pixel_bin_rep = <str>"1"
  *                 else:
  *                     pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
@@ -2166,30 +2124,30 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
  *             # adding bits
  */
         /*else*/ {
-          __pyx_t_2 = __pyx_kp_u_0;
-          __Pyx_INCREF(__pyx_t_2);
-          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_2));
-          __pyx_t_2 = 0;
+          __pyx_t_3 = __pyx_kp_u_0;
+          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
+          __pyx_t_3 = 0;
         }
         __pyx_L16:;
       }
       __pyx_L9:;
 
-      /* "fvid_cython.pyx":42
+      /* "fvid_cython.pyx":36
  * 
  *             # adding bits
  *             bits += pixel_bin_rep             # <<<<<<<<<<<<<<
  * 
  *     return bits
  */
-      __pyx_t_2 = __Pyx_PyUnicode_ConcatInPlaceSafe(__pyx_v_bits, __pyx_v_pixel_bin_rep); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 42, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF_SET(__pyx_v_bits, ((PyObject*)__pyx_t_2));
-      __pyx_t_2 = 0;
+      __pyx_t_3 = __Pyx_PyUnicode_ConcatInPlaceSafe(__pyx_v_bits, __pyx_v_pixel_bin_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF_SET(__pyx_v_bits, ((PyObject*)__pyx_t_3));
+      __pyx_t_3 = 0;
     }
   }
 
-  /* "fvid_cython.pyx":44
+  /* "fvid_cython.pyx":38
  *             bits += pixel_bin_rep
  * 
  *     return bits             # <<<<<<<<<<<<<<
@@ -2202,9 +2160,9 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
- *     cdef str pixel_bin_rep
+ *     cdef str pixel_bin_rep, bits
  */
 
   /* function exit code */
@@ -2217,8 +2175,8 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_pixel_bin_rep);
-  __Pyx_XDECREF(__pyx_v_px);
   __Pyx_XDECREF(__pyx_v_bits);
+  __Pyx_XDECREF(__pyx_v_px);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -2345,7 +2303,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_0, sizeof(__pyx_k_0), 0, 1, 0, 0},
   {0, __pyx_k_1, sizeof(__pyx_k_1), 0, 1, 0, 0},
   {0, __pyx_k__4, sizeof(__pyx_k__4), 0, 0, 1, 1},
-  {0, __pyx_k_all, sizeof(__pyx_k_all), 0, 0, 1, 1},
   {0, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {0, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {0, __pyx_k_cy_get_bits_from_image, sizeof(__pyx_k_cy_get_bits_from_image), 0, 0, 1, 1},
@@ -2363,7 +2320,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_0, __pyx_k_0, sizeof(__pyx_k_0), 0, 1, 0, 0},
   {&__pyx_kp_u_1, __pyx_k_1, sizeof(__pyx_k_1), 0, 1, 0, 0},
   {&__pyx_n_s__4, __pyx_k__4, sizeof(__pyx_k__4), 0, 0, 1, 1},
-  {&__pyx_n_s_all, __pyx_k_all, sizeof(__pyx_k_all), 0, 0, 1, 1},
   {&__pyx_n_s_class_getitem, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_cy_get_bits_from_image, __pyx_k_cy_get_bits_from_image, sizeof(__pyx_k_cy_get_bits_from_image), 0, 0, 1, 1},
@@ -2381,8 +2337,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 17, __pyx_L1_error)
-  __pyx_builtin_all = __Pyx_GetBuiltinName(__pyx_n_s_all); if (!__pyx_builtin_all) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 16, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -2396,9 +2351,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
- *     cdef str pixel_bin_rep
+ *     cdef str pixel_bin_rep, bits
  */
   __pyx_tuple__2 = PyTuple_Pack(1, __pyx_n_s_image); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
@@ -2418,19 +2373,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
   if (__Pyx_InitString(__pyx_string_tab[1], &__pyx_kp_u_0) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[2], &__pyx_kp_u_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[3], &__pyx_n_s__4) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[4], &__pyx_n_s_all) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[5], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[6], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[7], &__pyx_n_s_cy_get_bits_from_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_n_s_fvid_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_kp_s_fvid_cython_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_load) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_size) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[4], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[5], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[6], &__pyx_n_s_cy_get_bits_from_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[7], &__pyx_n_s_fvid_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_kp_s_fvid_cython_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_n_s_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_load) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_size) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
@@ -2776,9 +2730,9 @@ if (!__Pyx_RefNanny) {
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
- *     cdef str pixel_bin_rep
+ *     cdef str pixel_bin_rep, bits
  */
   __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_11fvid_cython_1cy_get_bits_from_image, 0, __pyx_n_s_cy_get_bits_from_image, NULL, __pyx_n_s_fvid_cython, __pyx_d, ((PyObject *)__pyx_codeobj__3)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -5054,27 +5008,6 @@ static __pyx_ctuple_int__and_int__and_int __pyx_convert__from_py___pyx_ctuple_in
     return result;
 bad:
     return result;
-}
-
-/* ToPyCTupleUtility */
-static PyObject* __pyx_convert__to_py___pyx_ctuple_int__and_int__and_int(__pyx_ctuple_int__and_int__and_int value) {
-    PyObject* item = NULL;
-    PyObject* result = PyTuple_New(3);
-    if (!result) goto bad;
-        item = __Pyx_PyInt_From_int(value.f0);
-        if (!item) goto bad;
-        PyTuple_SET_ITEM(result, 0, item);
-        item = __Pyx_PyInt_From_int(value.f1);
-        if (!item) goto bad;
-        PyTuple_SET_ITEM(result, 1, item);
-        item = __Pyx_PyInt_From_int(value.f2);
-        if (!item) goto bad;
-        PyTuple_SET_ITEM(result, 2, item);
-    return result;
-bad:
-    Py_XDECREF(item);
-    Py_XDECREF(result);
-    return NULL;
 }
 
 /* CIntFromPy */
