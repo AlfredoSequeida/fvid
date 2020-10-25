@@ -1,18 +1,12 @@
 from bitstring import Bits, BitArray
 from PIL import Image
 import glob
-
-from operator import sub
 from tqdm import tqdm
-
 import binascii
-
 import argparse
 import sys
 import os
-
-import getpass 
-
+import getpass
 import io
 import gzip
 import pickle
@@ -58,8 +52,6 @@ def get_password(password_provided):
         key = kdf.derive(password)
         return key
 
-
-
 def get_bits_from_file(filepath, key):
     print('Reading file...')
     bitarray = BitArray(filename=filepath)
@@ -94,6 +86,7 @@ def get_bits_from_image(image):
     if use_cython:
         bits = cy_gbfi(image)
         return bits, False
+
     width, height = image.size
 
     done = False
@@ -101,11 +94,10 @@ def get_bits_from_image(image):
     px = image.load()
     bits = ""
 
-    pbar = range(height)
     white = (255, 255, 255)
     black = (0, 0, 0)
     
-    for y in pbar:
+    for y in range(height):
         for x in range(width):
 
             pixel = px[x, y]
@@ -118,14 +110,9 @@ def get_bits_from_image(image):
             elif pixel == black:
                 pixel_bin_rep = "0"
             else:
-                white_diff = tuple(map(abs, map(sub, white, pixel)))
-                # min_diff = white_diff
-                black_diff = tuple(map(abs, map(sub, black, pixel)))
-
-
                 # if the white difference is smaller, that means the pixel is closer
                 # to white, otherwise, the pixel must be black
-                if all(map(less, white_diff, black_diff)):
+                if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
                     pixel_bin_rep = "1"
                 else:
                     pixel_bin_rep = "0"
@@ -134,7 +121,6 @@ def get_bits_from_image(image):
             bits += pixel_bin_rep
 
     return (bits, done)
-
 
 def get_bits_from_video(video_filepath):
     # get image sequence from video
@@ -150,6 +136,8 @@ def get_bits_from_video(video_filepath):
     bits = ""
     sequence_length = len(image_sequence)
     print('Bits are in place')
+    if use_cython:
+        print('Using Cython...')
     for index in tqdm(range(sequence_length)):
         b, done = get_bits_from_image(image_sequence[index])
 
@@ -159,7 +147,6 @@ def get_bits_from_video(video_filepath):
             break
 
     return bits
-
 
 def save_bits_to_file(file_path, bits, key):
     # get file extension
@@ -210,7 +197,6 @@ def split_list_by_n(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
-
 def make_image_sequence(bitstring, resolution=(1920, 1080)):
     width, height = resolution
 
@@ -220,7 +206,6 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     # bit_sequence = []
     print('Making image sequence')
     print('Cutting...')
-    #bitlist = list(tqdm(split_list_by_n(bitstring, set_size)))
     bitlist = list(split_list_by_n(bitstring, set_size))
     
     del bitstring
@@ -232,8 +217,6 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
     print('Saving frames...')
     for _ in tqdm(range(len(bitlist))):
         bitl = bitlist.pop()
-    # for bitl in tqdm(bitlist):
-        # image_bits = list(map(int, tqdm(bitl)))
         image_bits = list(map(int, bitl))
         # print(image_bits)
 
@@ -244,7 +227,6 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
         )
         index += 1
 
-
 def make_video(output_filepath, framerate="1/5"):
 
     if output_filepath == None:
@@ -252,7 +234,7 @@ def make_video(output_filepath, framerate="1/5"):
     else:
         outputfile = output_filepath
 
-    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ' + outputfile)
+    os.system('ffmpeg -r ' + framerate + ' -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb -tune zerolatency ' + outputfile)
 
 
 
@@ -268,7 +250,6 @@ def setup():
 
     if not os.path.exists(FRAMES_DIR):
         os.makedirs(FRAMES_DIR)
-
 
 def main():
     parser = argparse.ArgumentParser(description="save files as videos")
