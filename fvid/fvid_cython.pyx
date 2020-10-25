@@ -3,10 +3,10 @@
 # cython: cdivision=True
 # cython: wraparound=False
 
-cpdef cy_get_bits_from_image(image):
+cpdef str cy_get_bits_from_image(image):
     cdef int width, height, x, y
-    cdef str pixel_bin_rep
-    cdef (int, int, int) pixel#, white_diff, black_diff
+    cdef str pixel_bin_rep, bits
+    cdef (int, int, int) pixel
 
     width, height = image.size
 
