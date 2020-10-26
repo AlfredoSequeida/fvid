@@ -27,6 +27,8 @@ SALT = '63929291bca3c602de64352a4d4bfe69'.encode()  # It need be the same in one
 DEFAULT_KEY = ' '*32
 DEFAULT_KEY = DEFAULT_KEY.encode()
 NOTDEBUG = True
+TEMPVIDEO = '_temp.mp4'
+FRAMERATE = '1'
 
 class WrongPassword(Exception):
     pass
@@ -65,7 +67,7 @@ def get_bits_from_file(filepath, key):
     pickled = pickle.dumps({'tag':tag,
                             'data':ciphertext,
                             'filename':filepath})
-    print('Ziping...')
+    print('Zipping...')
     #zip
     out = io.BytesIO()
     with gzip.GzipFile(fileobj=out, mode='w') as fo:
@@ -126,9 +128,9 @@ def get_bits_from_video(video_filepath):
     # get image sequence from video
     print('Reading video...')
     image_sequence = []
-
-    os.system('ffmpeg -i ' + video_filepath + ' ./fvid_frames/decoded_frames_%d.png');
-
+    os.system('ffmpeg -i ' + video_filepath + ' -filter:v fps=fps=' + FRAMERATE + ' ' + TEMPVIDEO)
+    os.system('ffmpeg -i ' + TEMPVIDEO + ' ./fvid_frames/decoded_frames_%d.png');
+    os.remove(TEMPVIDEO) 
     # for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
     for filename in sorted(glob.glob(f"{FRAMES_DIR}decoded_frames*.png"), key=os.path.getmtime) :
         image_sequence.append(Image.open(filename))
@@ -227,7 +229,7 @@ def make_image_sequence(bitstring, resolution=(1920, 1080)):
         )
         index += 1
 
-def make_video(output_filepath, framerate="1/5"):
+def make_video(output_filepath, framerate=FRAMERATE):
 
     if output_filepath == None:
         outputfile = "file.mp4"
@@ -252,6 +254,7 @@ def setup():
         os.makedirs(FRAMES_DIR)
 
 def main():
+    global FRAMERATE
     parser = argparse.ArgumentParser(description="save files as videos")
     parser.add_argument(
         "-e", "--encode", help="encode file as video", action="store_true"
@@ -262,7 +265,7 @@ def main():
 
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
-    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default="1/5", type=str)
+    parser.add_argument("-f", "--framerate", help="set framerate for encoding (as a fraction)", default=FRAMERATE, type=str)
     parser.add_argument("-p", "--password", help="set password", nargs="?", type=str, default='default')
 
     args = parser.parse_args()
@@ -271,7 +274,10 @@ def main():
     if not NOTDEBUG:
         print('args', args)
         print('PASSWORD', args.password, [len(args.password) if len(args.password) is not None else None for _ in range(0)])
-    
+
+    if args.framerate != FRAMERATE:
+        FRAMERATE = args.framerate
+
     if not args.decode and not args.encode:
         raise   MissingArgument('You should use either --encode or --decode!') #check for arguments
     
