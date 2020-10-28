@@ -74,9 +74,6 @@ setup(
     ],
     license="MIT",
     packages=["fvid"],
-    setup_requires=[
-        "cython >= 3.0a6"
-    ],
     install_requires=[
         "bitstring >= 3.1.6",
         "pillow >= 7.2.0",
