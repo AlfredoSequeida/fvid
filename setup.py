@@ -14,10 +14,10 @@ else:
     ext = 'pyx'
 
 if not use_cython:
-    extensions = Extension("fvid.fvid_cython", ["fvid/fvid_cython.c"], include_dirs=["./fvid", "fvid/"])
+    extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.c"], include_dirs=["./fvid", "fvid/"])]
 else:
     extensions = Extension("fvid.fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])
-    extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
+    extensions = [cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})]
 
 
 class build_ext(_build_ext):
