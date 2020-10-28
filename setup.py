@@ -13,12 +13,15 @@ else:
     use_cython = True
     ext = 'pyx'
 
-if not use_cython:
-    extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.c"], include_dirs=["./fvid", "fvid/"])]
-else:
-    extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])]
-    extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
-
+try:
+    if not use_cython:
+        extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.c"], include_dirs=["./fvid", "fvid/"])]
+    else:
+        extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])]
+        extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
+    build_worked = True
+except: # blanket exception until the exact exception name is found
+    build_worked = False
 
 class build_ext(_build_ext):
     def finalize_options(self):
@@ -45,7 +48,8 @@ def get_version(rel_path):
 
 dynamic_version = get_version("fvid/__init__.py")
 
-setup(
+
+setup(setup_tuple = (
     name="fvid",
     version=dynamic_version,
     author="Alfredo Sequeida",
@@ -83,8 +87,8 @@ setup(
     ],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
-    ext_modules=extensions,
+    ext_modules=extensions if build_worked else [],
     cmdclass={'build_ext': build_ext},
     include_package_data=True,
     zip_safe=False,
-)
+    )
