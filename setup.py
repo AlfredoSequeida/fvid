@@ -65,6 +65,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Operating System :: Microsoft :: Windows :: Windows 10",
         "Operating System :: Microsoft :: Windows :: Windows 8",
         "Operating System :: Microsoft :: Windows :: Windows 8.1",
@@ -77,9 +78,9 @@ setup(
         "cython >= 3.0a6"
     ],
     install_requires=[
-        "bitstring",
-        "pillow",
-        "tqdm",
+        "bitstring >= 3.1.6",
+        "pillow >= 7.2.0",
+        "tqdm >= 4.49.0",
         "cryptography >= 3.1.1",
         "pycryptodome >= 3.9.8"
     ],
