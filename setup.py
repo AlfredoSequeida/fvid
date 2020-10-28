@@ -2,7 +2,7 @@ import os
 import codecs
 from setuptools import setup
 from setuptools import Extension
-from setuptools.command.build_ext import build_ext as _build_ext
+from setuptools.command.build_ext import build_ext
 
 try:
     from Cython.Build import cythonize
@@ -21,10 +21,6 @@ try:
         extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
 except: # blanket exception until the exact exception name is found
     extensions = []
-
-class build_ext(_build_ext):
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -130,7 +126,5 @@ except:
         ],
         python_requires=">=3.6",
         entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
-        cmdclass={'build_ext': build_ext},
         include_package_data=True,
-        zip_safe=False,
         )
