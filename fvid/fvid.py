@@ -81,23 +81,16 @@ def get_bits_from_file(filepath, key):
     bitarray = BitArray(zip)
     return bitarray.bin
 
-def less(val1, val2):
-    return val1 < val2
-
 def get_bits_from_image(image):
+
     if use_cython:
         bits = cy_gbfi(image)
-        return bits, False
+        return bits
 
     width, height = image.size
 
-    done = False
-
     px = image.load()
     bits = ""
-
-    white = (255, 255, 255)
-    black = (0, 0, 0)
     
     for y in range(height):
         for x in range(width):
@@ -106,23 +99,16 @@ def get_bits_from_image(image):
 
             pixel_bin_rep = "0"
 
-            # for exact matches
-            if pixel == white:
+            # if the white difference is smaller, that means the pixel is closer
+            # to white, otherwise, the pixel must be black
+            if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
                 pixel_bin_rep = "1"
-            elif pixel == black:
-                pixel_bin_rep = "0"
-            else:
-                # if the white difference is smaller, that means the pixel is closer
-                # to white, otherwise, the pixel must be black
-                if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
-                    pixel_bin_rep = "1"
-                else:
-                    pixel_bin_rep = "0"
 
             # adding bits
             bits += pixel_bin_rep
 
-    return (bits, done)
+    return bits
+
 
 def get_bits_from_video(video_filepath):
     # get image sequence from video
@@ -141,12 +127,7 @@ def get_bits_from_video(video_filepath):
     if use_cython:
         print('Using Cython...')
     for index in tqdm(range(sequence_length)):
-        b, done = get_bits_from_image(image_sequence[index])
-
-        bits += b
-
-        if done:
-            break
+        bits += get_bits_from_image(image_sequence[index])
 
     return bits
 
