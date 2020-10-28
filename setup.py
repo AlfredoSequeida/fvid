@@ -49,7 +49,7 @@ def get_version(rel_path):
 dynamic_version = get_version("fvid/__init__.py")
 
 
-setup(setup_tuple = (
+setup(
     name="fvid",
     version=dynamic_version,
     author="Alfredo Sequeida",
