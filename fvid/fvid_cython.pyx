@@ -19,18 +19,10 @@ cpdef str cy_get_bits_from_image(image):
 
             pixel_bin_rep = <str>"0"
 
-            # for exact matches, indexing each pixel individually is faster in cython for some reason
-            if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
+            # if the white difference is smaller (comparison part 1), that means the pixel is closer
+            # to white, otherwise, the pixel must be black
+            if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
                 pixel_bin_rep = <str>"1"
-            elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
-                pixel_bin_rep = <str>"0"
-            else:
-                # if the white difference is smaller (comparison part 1), that means the pixel is closer
-                # to white, otherwise, the pixel must be black
-                if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
-                    pixel_bin_rep = <str>"1"
-                else:
-                    pixel_bin_rep = <str>"0"
 
             # adding bits
             bits += pixel_bin_rep
