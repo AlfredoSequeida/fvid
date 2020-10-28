@@ -19,9 +19,8 @@ try:
     else:
         extensions = [Extension("fvid.fvid_cython", ["fvid/fvid_cython.pyx"], include_dirs=["./fvid", "fvid/"])]
         extensions = cythonize(extensions, compiler_directives={'language_level': "3", 'infer_types': True})
-    build_worked = True
 except: # blanket exception until the exact exception name is found
-    build_worked = False
+    extensions = []
 
 class build_ext(_build_ext):
     def finalize_options(self):
@@ -48,47 +47,90 @@ def get_version(rel_path):
 
 dynamic_version = get_version("fvid/__init__.py")
 
-
-setup(
-    name="fvid",
-    version=dynamic_version,
-    author="Alfredo Sequeida",
-    description="fvid is a project that aims to encode any file as a video using 1-bit color images to survive compression algorithms for data retrieval.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/AlfredoSequeida/fvid",
-    download_url="https://github.com/AlfredoSequeida/fvid/archive/"
-    + dynamic_version
-    + ".tar.gz",
-    keywords="fvid youtube videos files bitdum hexdump ffmpeg video file",
-    platforms="any",
-    classifiers=[
-        "Intended Audience :: End Users/Desktop",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Operating System :: Microsoft :: Windows :: Windows 10",
-        "Operating System :: Microsoft :: Windows :: Windows 8",
-        "Operating System :: Microsoft :: Windows :: Windows 8.1",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: POSIX :: Linux",
-    ],
-    license="MIT",
-    packages=["fvid"],
-    install_requires=[
-        "bitstring >= 3.1.6",
-        "pillow >= 7.2.0",
-        "tqdm >= 4.49.0",
-        "cryptography >= 3.1.1",
-        "pycryptodome >= 3.9.8"
-    ],
-    python_requires=">=3.6",
-    entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
-    ext_modules=extensions if build_worked else [],
-    cmdclass={'build_ext': build_ext},
-    include_package_data=True,
-    zip_safe=False,
-    )
+try:
+    setup(
+        name="fvid",
+        version=dynamic_version,
+        author="Alfredo Sequeida",
+        description="fvid is a project that aims to encode any file as a video using 1-bit color images to survive compression algorithms for data retrieval.",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        url="https://github.com/AlfredoSequeida/fvid",
+        download_url="https://github.com/AlfredoSequeida/fvid/archive/"
+        + dynamic_version
+        + ".tar.gz",
+        keywords="fvid youtube videos files bitdum hexdump ffmpeg video file",
+        platforms="any",
+        classifiers=[
+            "Intended Audience :: End Users/Desktop",
+            "License :: OSI Approved :: MIT License",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Operating System :: Microsoft :: Windows :: Windows 10",
+            "Operating System :: Microsoft :: Windows :: Windows 8",
+            "Operating System :: Microsoft :: Windows :: Windows 8.1",
+            "Operating System :: MacOS :: MacOS X",
+            "Operating System :: POSIX :: Linux",
+        ],
+        license="MIT",
+        packages=["fvid"],
+        install_requires=[
+            "bitstring >= 3.1.6",
+            "pillow >= 7.2.0",
+            "tqdm >= 4.49.0",
+            "cryptography >= 3.1.1",
+            "pycryptodome >= 3.9.8"
+        ],
+        python_requires=">=3.6",
+        entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
+        cmdclass={'build_ext': build_ext},
+        ext_modules=extensions,
+        include_package_data=True,
+        zip_safe=False,
+        )
+except:
+    setup(
+        name="fvid",
+        version=dynamic_version,
+        author="Alfredo Sequeida",
+        description="fvid is a project that aims to encode any file as a video using 1-bit color images to survive compression algorithms for data retrieval.",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        url="https://github.com/AlfredoSequeida/fvid",
+        download_url="https://github.com/AlfredoSequeida/fvid/archive/"
+        + dynamic_version
+        + ".tar.gz",
+        keywords="fvid youtube videos files bitdum hexdump ffmpeg video file",
+        platforms="any",
+        classifiers=[
+            "Intended Audience :: End Users/Desktop",
+            "License :: OSI Approved :: MIT License",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Operating System :: Microsoft :: Windows :: Windows 10",
+            "Operating System :: Microsoft :: Windows :: Windows 8",
+            "Operating System :: Microsoft :: Windows :: Windows 8.1",
+            "Operating System :: MacOS :: MacOS X",
+            "Operating System :: POSIX :: Linux",
+        ],
+        license="MIT",
+        packages=["fvid"],
+        install_requires=[
+            "bitstring >= 3.1.6",
+            "pillow >= 7.2.0",
+            "tqdm >= 4.49.0",
+            "cryptography >= 3.1.1",
+            "pycryptodome >= 3.9.8"
+        ],
+        python_requires=">=3.6",
+        entry_points={"console_scripts": ["fvid = fvid.fvid:main"]},
+        cmdclass={'build_ext': build_ext},
+        include_package_data=True,
+        zip_safe=False,
+        )
