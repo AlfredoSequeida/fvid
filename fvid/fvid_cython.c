@@ -1797,9 +1797,9 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   int __pyx_t_11;
   __pyx_ctuple_int__and_int__and_int __pyx_t_12;
   int __pyx_t_13;
-  int __pyx_t_14;
+  long __pyx_t_14;
   long __pyx_t_15;
-  long __pyx_t_16;
+  int __pyx_t_16;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -1964,190 +1964,79 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
  * 
  *             pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
  * 
- *             # for exact matches, indexing each pixel individually is faster in cython for some reason
+ *             # if the white difference is smaller (comparison part 1), that means the pixel is closer
  */
       __pyx_t_3 = __pyx_kp_u_0;
       __Pyx_INCREF(__pyx_t_3);
       __Pyx_XDECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
       __pyx_t_3 = 0;
 
-      /* "fvid_cython.pyx":23
- * 
- *             # for exact matches, indexing each pixel individually is faster in cython for some reason
- *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:             # <<<<<<<<<<<<<<
+      /* "fvid_cython.pyx":24
+ *             # if the white difference is smaller (comparison part 1), that means the pixel is closer
+ *             # to white, otherwise, the pixel must be black
+ *             if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
  *                 pixel_bin_rep = <str>"1"
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
+ * 
  */
-      __pyx_t_14 = ((__pyx_v_pixel.f0 == 0xFF) != 0);
-      if (__pyx_t_14) {
+      __pyx_t_14 = labs((__pyx_v_pixel.f0 - 0xFF)); if (unlikely(__pyx_t_14 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_15 = labs((__pyx_v_pixel.f0 - 0)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_16 = ((__pyx_t_14 < __pyx_t_15) != 0);
+      if (__pyx_t_16) {
       } else {
-        __pyx_t_13 = __pyx_t_14;
+        __pyx_t_13 = __pyx_t_16;
         goto __pyx_L10_bool_binop_done;
       }
-      __pyx_t_14 = ((__pyx_v_pixel.f1 == 0xFF) != 0);
-      if (__pyx_t_14) {
+      __pyx_t_15 = labs((__pyx_v_pixel.f1 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_14 = labs((__pyx_v_pixel.f1 - 0)); if (unlikely(__pyx_t_14 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_16 = ((__pyx_t_15 < __pyx_t_14) != 0);
+      if (__pyx_t_16) {
       } else {
-        __pyx_t_13 = __pyx_t_14;
+        __pyx_t_13 = __pyx_t_16;
         goto __pyx_L10_bool_binop_done;
       }
-      __pyx_t_14 = ((__pyx_v_pixel.f2 == 0xFF) != 0);
-      __pyx_t_13 = __pyx_t_14;
+      __pyx_t_14 = labs((__pyx_v_pixel.f2 - 0xFF)); if (unlikely(__pyx_t_14 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_15 = labs((__pyx_v_pixel.f2 - 0)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_16 = ((__pyx_t_14 < __pyx_t_15) != 0);
+      __pyx_t_13 = __pyx_t_16;
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_13) {
 
-        /* "fvid_cython.pyx":24
- *             # for exact matches, indexing each pixel individually is faster in cython for some reason
- *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
+        /* "fvid_cython.pyx":25
+ *             # to white, otherwise, the pixel must be black
+ *             if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
  *                 pixel_bin_rep = <str>"1"             # <<<<<<<<<<<<<<
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
- *                 pixel_bin_rep = <str>"0"
+ * 
+ *             # adding bits
  */
         __pyx_t_3 = __pyx_kp_u_1;
         __Pyx_INCREF(__pyx_t_3);
         __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
         __pyx_t_3 = 0;
 
-        /* "fvid_cython.pyx":23
+        /* "fvid_cython.pyx":24
+ *             # if the white difference is smaller (comparison part 1), that means the pixel is closer
+ *             # to white, otherwise, the pixel must be black
+ *             if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
+ *                 pixel_bin_rep = <str>"1"
  * 
- *             # for exact matches, indexing each pixel individually is faster in cython for some reason
- *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:             # <<<<<<<<<<<<<<
- *                 pixel_bin_rep = <str>"1"
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
  */
-        goto __pyx_L9;
       }
 
-      /* "fvid_cython.pyx":25
- *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
- *                 pixel_bin_rep = <str>"1"
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:             # <<<<<<<<<<<<<<
- *                 pixel_bin_rep = <str>"0"
- *             else:
- */
-      __pyx_t_14 = ((__pyx_v_pixel.f0 == 0) != 0);
-      if (__pyx_t_14) {
-      } else {
-        __pyx_t_13 = __pyx_t_14;
-        goto __pyx_L13_bool_binop_done;
-      }
-      __pyx_t_14 = ((__pyx_v_pixel.f1 == 0) != 0);
-      if (__pyx_t_14) {
-      } else {
-        __pyx_t_13 = __pyx_t_14;
-        goto __pyx_L13_bool_binop_done;
-      }
-      __pyx_t_14 = ((__pyx_v_pixel.f2 == 0) != 0);
-      __pyx_t_13 = __pyx_t_14;
-      __pyx_L13_bool_binop_done:;
-      if (__pyx_t_13) {
-
-        /* "fvid_cython.pyx":26
- *                 pixel_bin_rep = <str>"1"
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:
- *                 pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
- *             else:
- *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
- */
-        __pyx_t_3 = __pyx_kp_u_0;
-        __Pyx_INCREF(__pyx_t_3);
-        __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
-        __pyx_t_3 = 0;
-
-        /* "fvid_cython.pyx":25
- *             if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
- *                 pixel_bin_rep = <str>"1"
- *             elif pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 0:             # <<<<<<<<<<<<<<
- *                 pixel_bin_rep = <str>"0"
- *             else:
- */
-        goto __pyx_L9;
-      }
-
-      /* "fvid_cython.pyx":30
- *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
- *                 # to white, otherwise, the pixel must be black
- *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
- *                     pixel_bin_rep = <str>"1"
- *                 else:
- */
-      /*else*/ {
-        __pyx_t_15 = labs((__pyx_v_pixel.f0 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_16 = labs((__pyx_v_pixel.f0 - 0)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_14 = ((__pyx_t_15 < __pyx_t_16) != 0);
-        if (__pyx_t_14) {
-        } else {
-          __pyx_t_13 = __pyx_t_14;
-          goto __pyx_L17_bool_binop_done;
-        }
-        __pyx_t_16 = labs((__pyx_v_pixel.f1 - 0xFF)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_15 = labs((__pyx_v_pixel.f1 - 0)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_14 = ((__pyx_t_16 < __pyx_t_15) != 0);
-        if (__pyx_t_14) {
-        } else {
-          __pyx_t_13 = __pyx_t_14;
-          goto __pyx_L17_bool_binop_done;
-        }
-        __pyx_t_15 = labs((__pyx_v_pixel.f2 - 0xFF)); if (unlikely(__pyx_t_15 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_16 = labs((__pyx_v_pixel.f2 - 0)); if (unlikely(__pyx_t_16 == ((long)-1))) __PYX_ERR(0, 30, __pyx_L1_error)
-        __pyx_t_14 = ((__pyx_t_15 < __pyx_t_16) != 0);
-        __pyx_t_13 = __pyx_t_14;
-        __pyx_L17_bool_binop_done:;
-        if (__pyx_t_13) {
-
-          /* "fvid_cython.pyx":31
- *                 # to white, otherwise, the pixel must be black
- *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):
- *                     pixel_bin_rep = <str>"1"             # <<<<<<<<<<<<<<
- *                 else:
- *                     pixel_bin_rep = <str>"0"
- */
-          __pyx_t_3 = __pyx_kp_u_1;
-          __Pyx_INCREF(__pyx_t_3);
-          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
-          __pyx_t_3 = 0;
-
-          /* "fvid_cython.pyx":30
- *                 # if the white difference is smaller (comparison part 1), that means the pixel is closer
- *                 # to white, otherwise, the pixel must be black
- *                 if abs(pixel[0] - 255) < abs(pixel[0] - 0) and abs(pixel[1] - 255) < abs(pixel[1] - 0) and abs(pixel[2] - 255) < abs(pixel[2] - 0):             # <<<<<<<<<<<<<<
- *                     pixel_bin_rep = <str>"1"
- *                 else:
- */
-          goto __pyx_L16;
-        }
-
-        /* "fvid_cython.pyx":33
- *                     pixel_bin_rep = <str>"1"
- *                 else:
- *                     pixel_bin_rep = <str>"0"             # <<<<<<<<<<<<<<
- * 
- *             # adding bits
- */
-        /*else*/ {
-          __pyx_t_3 = __pyx_kp_u_0;
-          __Pyx_INCREF(__pyx_t_3);
-          __Pyx_DECREF_SET(__pyx_v_pixel_bin_rep, ((PyObject*)__pyx_t_3));
-          __pyx_t_3 = 0;
-        }
-        __pyx_L16:;
-      }
-      __pyx_L9:;
-
-      /* "fvid_cython.pyx":36
+      /* "fvid_cython.pyx":28
  * 
  *             # adding bits
  *             bits += pixel_bin_rep             # <<<<<<<<<<<<<<
  * 
  *     return bits
  */
-      __pyx_t_3 = __Pyx_PyUnicode_ConcatInPlaceSafe(__pyx_v_bits, __pyx_v_pixel_bin_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyUnicode_ConcatInPlaceSafe(__pyx_v_bits, __pyx_v_pixel_bin_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF_SET(__pyx_v_bits, ((PyObject*)__pyx_t_3));
       __pyx_t_3 = 0;
     }
   }
 
-  /* "fvid_cython.pyx":38
+  /* "fvid_cython.pyx":30
  *             bits += pixel_bin_rep
  * 
  *     return bits             # <<<<<<<<<<<<<<
