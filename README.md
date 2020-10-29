@@ -37,7 +37,7 @@ Linux/OSX
 
 ```
 fvid -i [input file] -e
-fvid -i [input file] --framerate 30 -e
+fvid -i [input file] --framerate 1 -e
 fvid -i [input file] --password "wow fvid is cool" -e
 ```
 
@@ -45,7 +45,7 @@ Windows
 
 ```
 py -m fvid -i [input file] -e
-py -m fvid -i [input file] --framerate 30 -e
+py -m fvid -i [input file] --framerate 1 -e
 py -m fvid -i [input file] --password "wow fvid is cool" -e
 ```
 
