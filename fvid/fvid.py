@@ -115,10 +115,9 @@ def get_bits_from_video(video_filepath):
     print('Reading video...')
     image_sequence = []
     os.system('ffmpeg -i ' + video_filepath + ' -c:v libx264rgb -filter:v fps=fps=' + FRAMERATE + ' ' + TEMPVIDEO)
-    os.system('ffmpeg -i ' + TEMPVIDEO + ' ./fvid_frames/decoded_frames_%d.png');
+    os.system('ffmpeg -i ' + TEMPVIDEO + ' ./fvid_frames/decoded_frames_%d.png')
     os.remove(TEMPVIDEO) 
-    # for filename in glob.glob(f"{FRAMES_DIR}decoded_frames*.png"):
-    for filename in sorted(glob.glob(f"{FRAMES_DIR}decoded_frames*.png"), key=os.path.getmtime) :
+    for filename in sorted(glob.glob(f"{FRAMES_DIR}decoded_frames*.png"), key=os.path.getmtime):
         image_sequence.append(Image.open(filename))
 
     bits = ""
