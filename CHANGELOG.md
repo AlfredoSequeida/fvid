@@ -2,6 +2,7 @@ __Planned (1.1.0)__
 - GUI
 
 __1.0.0__
+
 Additions:
 - Added support for passwords, custom framerates, and Cython compilation
 - file.mp4 compression with ``gzip``
