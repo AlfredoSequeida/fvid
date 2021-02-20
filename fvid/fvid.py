@@ -9,7 +9,8 @@ import os
 import getpass
 import io
 import gzip
-import pickle
+import json
+import base64
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -85,21 +86,27 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
     ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
 
     filename = os.path.basename(filepath)
-    pickled = pickle.dumps(
-        {"tag": tag, "data": ciphertext, "filename": filepath}
-    )
+
+    # because json can only serialize strings, the byte objects are encoded
+    # using base64
+    data_bytes = json.dumps(
+        {
+            "tag": base64.b64encode(tag).decode("utf-8"),
+            "data": base64.b64encode(ciphertext).decode("utf-8"),
+            "filename": filepath,
+        }
+    ).encode("utf-8")
 
     print("Zipping...")
 
     # zip
     out = io.BytesIO()
     with gzip.GzipFile(fileobj=out, mode="w") as fo:
-        fo.write(pickled)
+        fo.write(data_bytes)
     zip = out.getvalue()
     # zip
 
     del bitarray
-    del pickled
 
     bitarray = BitArray(zip)
 
@@ -193,7 +200,6 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
     key -- key userd for file decryption
     """
 
-    # get file extension
     bitstring = Bits(bin=bits)
 
     # zip
@@ -205,10 +211,14 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
         bitstring = fo.read()
     # zip
 
-    unpickled = pickle.loads(bitstring)
-    tag = unpickled["tag"]
-    ciphertext = unpickled["data"]
-    filename = unpickled["filename"]
+    # loading data back from bytes to utf-8 string to deserialize
+    data = json.loads(bitstring.decode("utf-8"))
+
+    # decoding previously encoded base64 bytes data to get bytes back
+    tag = base64.b64decode(data["tag"])
+    ciphertext = base64.b64decode(data["data"])
+
+    filename = data["filename"]
 
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
     bitstring = cipher.decrypt(ciphertext)
