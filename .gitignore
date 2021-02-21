@@ -105,3 +105,10 @@ venv.bak/
 
 # Ignore output files
 fvid_frames/
+
+# Theel does her testing inside the fvid directory
+fvid/*.mp4
+fvid/*.m4a
+fvid/*.txt
+fvid/*.jpg
+fvid/*.png
