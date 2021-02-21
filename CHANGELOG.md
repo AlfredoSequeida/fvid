@@ -1,5 +1,6 @@
 __Planned (1.1.0)__
 - GUI
+- Use json-encoded strings instead of pickle for storing stuff
 
 __1.0.0__
 
