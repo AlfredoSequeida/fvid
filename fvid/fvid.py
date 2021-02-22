@@ -12,6 +12,8 @@ import gzip
 import json
 import base64
 
+from reedsolo import RSCodec, ReedSolomonError
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -33,6 +35,16 @@ DEFAULT_KEY = DEFAULT_KEY.encode()
 NOTDEBUG = True
 TEMPVIDEO = "_temp.mp4"
 FRAMERATE = "1"
+
+# using Reed Solomon error correcting
+# error correction codec, larger value is safer, but causes larger file
+# sizes / longer videos
+
+# using eec of 5:
+# max corrections = 8 (all 8 bytes)
+# max erasures = 16
+
+ECC = 12
 
 
 class WrongPassword(Exception):
@@ -68,20 +80,55 @@ def get_password(password_provided: str) -> bytes:
         return key
 
 
-def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
+def apply_reed_solomon(bit_array: BitArray) -> BitArray:
     """
-    Get/read bits from file
+    Apply Reed-Solomon error correction every byte to maximize retrieval
+    possibility as opposed to applying it to the entire file
+
+    bit_array -- BitArray containing raw file data
+    ecc -- The error correction value to be used (default DEFAULT_ECC)
+    """
+
+    # one byte is 8 bits
+    byte = 8
+
+    bits = bit_array.bin
+
+    rsc = RSCodec(ECC)
+
+    # split bits into bytes (sets of 8)
+    byte_list = split_string_by_n(bits, byte)
+
+    ecc_bytes = bytearray()
+
+    print("Applying Reed-Solomon Error Correction...")
+
+    # apply reed solomon
+    for b in tqdm(byte_list):
+        ecc_bytes += rsc.encode(b.encode("utf-8"))
+
+    return BitArray(bytes=ecc_bytes)
+
+
+def get_bits_from_file(
+    filepath: str, key: bytes, reed_solomon: bool
+) -> BitArray:
+    """
+    Get/read bits fom file, encrypt data, and zip
 
     filepath -- the file to read
     key -- key used to encrypt file
+    reed_solomon -- if reed solomon should be used to encode bits
     """
 
     print("Reading file...")
 
     bitarray = BitArray(filename=filepath)
 
-    # adding a delimiter to know when the file ends to avoid corrupted files
-    # when retrieving
+    if reed_solomon:
+        bitarray = apply_reed_solomon(BitArray(filename=filepath))
+
+    # encrypt data
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
     ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
 
@@ -89,6 +136,7 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
 
     # because json can only serialize strings, the byte objects are encoded
     # using base64
+
     data_bytes = json.dumps(
         {
             "tag": base64.b64encode(tag).decode("utf-8"),
@@ -97,7 +145,7 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
         }
     ).encode("utf-8")
 
-    print("Zipping...")
+    # print("Zipping...")
 
     # zip
     out = io.BytesIO()
@@ -109,6 +157,7 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
     del bitarray
 
     bitarray = BitArray(zip)
+    # bitarray = BitArray(data_bytes)
 
     return bitarray.bin
 
@@ -185,19 +234,43 @@ def get_bits_from_video(video_filepath: str) -> str:
 
     if use_cython:
         print("Using Cython...")
+
     for index in tqdm(range(sequence_length)):
         bits += get_bits_from_image(image_sequence[index])
 
     return bits
 
 
-def save_bits_to_file(file_path: str, bits: str, key: bytes):
+def decode_reed_solomon(data_bytes: bytes) -> bytes:
+    rsc = RSCodec(ECC)
+    byte = 8
+
+    # n is the block size (message length + ecc) as defined by the dist
+    # (n − k + 1)
+    n = byte + ECC
+
+    byte_list = split_string_by_n(data_bytes, n)
+
+    decoded_bytes = bytes()
+
+    print("Decoding Reed-Solomon Error Correction...")
+
+    for b in tqdm(byte_list):
+        decoded_bytes += rsc.decode(b)[0]
+
+    return decoded_bytes
+
+
+def save_bits_to_file(
+    file_path: str, bits: str, key: bytes, reed_solomon: bool
+):
     """
     save/write bits to a file
 
     file_path -- the path to write to
     bits -- the bits to write
     key -- key userd for file decryption
+    reed_solomon -- needed if reed solomon was used to encode bits
     """
 
     bitstring = Bits(bin=bits)
@@ -220,8 +293,9 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
 
     filename = data["filename"]
 
+    # decrypting data
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
-    bitstring = cipher.decrypt(ciphertext)
+    data_bytes = cipher.decrypt(ciphertext)
 
     print("Checking integrity...")
 
@@ -230,7 +304,12 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
     except ValueError:
         raise WrongPassword("Key incorrect or message corrupted")
 
-    bitstring = BitArray(bitstring)
+    bitstring = Bits(data_bytes)
+
+    if reed_solomon:
+        bitstring = Bits(
+            "0b" + decode_reed_solomon(data_bytes).decode("utf-8")
+        )
 
     # If filepath not passed in use default otherwise used passed in filepath
     if file_path == None:
@@ -286,11 +365,12 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
 
     index = 1
     bitlist = bitlist[::-1]
+
     print("Saving frames...")
+
     for _ in tqdm(range(len(bitlist))):
         bitl = bitlist.pop()
         image_bits = list(map(int, bitl))
-        # print(image_bits)
 
         image = Image.new("1", (width, height))
         image.putdata(image_bits)
@@ -364,6 +444,21 @@ def main():
         type=str,
         default="default",
     )
+    parser.add_argument(
+        "-r",
+        "--reed-solomon",
+        help=(
+            "Apply Reed-Solomon error correcting. This is helpful if you're"
+            " finding that your data is not being decoded correctly. It adds"
+            " extra data every byte making it possible to recover all 8 bits"
+            " in the case the data changes during the decoding process at"
+            " the cost of making your video files larger. Note, if you use"
+            " this option, you must also use the -r flag to decode a video"
+            " back to a file, otherwise, your data will not be recovered"
+            " correctly."
+        ),
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -398,7 +493,7 @@ def main():
         if args.output:
             file_path = args.output
 
-        save_bits_to_file(file_path, bits, key)
+        save_bits_to_file(file_path, bits, key, args.reed_solomon)
 
     elif args.encode:
 
@@ -415,7 +510,7 @@ def main():
             )
 
         # get bits from file
-        bits = get_bits_from_file(args.input, key)
+        bits = get_bits_from_file(args.input, key, args.reed_solomon)
 
         # create image sequence
         make_image_sequence(bits)
