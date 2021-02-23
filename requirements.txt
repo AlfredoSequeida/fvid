@@ -1,0 +1,5 @@
+Pillow
+bitstring
+tqdm
+pycryptography
+zfec
