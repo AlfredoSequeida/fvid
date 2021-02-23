@@ -12,6 +12,7 @@ import gzip
 import json
 import base64
 import decimal
+import random
 
 from zfec import easyfec as ef
 
@@ -37,9 +38,12 @@ NOTDEBUG = True
 TEMPVIDEO = "_temp.mp4"
 FRAMERATE = "1"
 
-# DO NOT CHANGE
+# DO NOT CHANGE: (2, 3) WORKS SOMETIMES
+# BUT SOMEHOW THIS IS THE ONLY COMBO THAT ALWAYS WORKS
 KVAL = 4
 MVAL = 5
+# THIS CAN BE ANY POWER OF 2 BUT MUST STAY SAME BETWEEN ENCODING/DECODING
+# RECOMMENDED 8-64
 BLOCK = 16
 
 
@@ -161,8 +165,7 @@ def get_bits_from_image(image: Image) -> str:
     """
 
     if use_cython:
-        bits = cy_gbfi(image)
-        return bits
+        return cy_gbfi(image)
 
     width, height = image.size
 
@@ -235,9 +238,6 @@ def get_bits_from_video(video_filepath: str) -> str:
 def decode_zfec(data_bytes: bytes) -> bytes:
     global KVAL, MVAL, BLOCK
 
-    KVAL = 4
-    MVAL = 5
-
     byte_list = split_string_by_n(data_bytes, int(BLOCK*(MVAL/KVAL)))
 
     # appending to a single bytes object is very slow so we make 50-51 and combine at the end
@@ -249,26 +249,26 @@ def decode_zfec(data_bytes: bytes) -> bytes:
     i = 0
     for b in tqdm(byte_list):
         base = split_string_by_n(b, len(b) // MVAL)
-        idk = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
-        idk2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
-        if idk == idk2:
-            decoded_bytes[i//50] += idk
+        decoded_str_1 = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
+        decoded_str_2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
+        if decoded_str_1 == decoded_str_2:
+            decoded_bytes[i//50] += decoded_str_1
         else: # its corrupted here
             j = 10
-            while j > 0 and idk != idk2:
+            while j > 0 and decoded_str_1 != decoded_str_2:
                 random.shuffle(base)
-                idk = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
-                idk2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
+                decoded_str_1 = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
+                decoded_str_2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
                 j -= 1
-            decoded_bytes[i//50] += idk # it should be correct by now
+            decoded_bytes[i//50] += decoded_str_1 # it should be correct by now
         i += 1
 
-    decoded_bytes2 = bytes()
+    decoded_bytestring = bytes()
     
     for bytestring in tqdm(decoded_bytes):
-        decoded_bytes2 += bytestring
+        decoded_bytestring += bytestring
 
-    return decoded_bytes2
+    return decoded_bytestring
 
 
 def save_bits_to_file(
