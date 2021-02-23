@@ -10,8 +10,8 @@ Welcome to Fvid's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   history
    howto
+   history
 
 Download & Install
 ==================

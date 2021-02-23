@@ -112,3 +112,5 @@ fvid/*.m4a
 fvid/*.txt
 fvid/*.jpg
 fvid/*.png
+fvid/*.lprof
+
