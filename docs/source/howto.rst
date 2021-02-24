@@ -45,3 +45,8 @@ Options
 * ``-d/--decode`` This indicates you're decoding the input file
 * ``-f/--framerate`` After this, specify the framerate that you want to have the file output at. A higher value means the frames go faster. Defaults to 1 fps.
 * ``-p/--password`` After this, specify the password you want to encode with. You will need to remember this to decode the file. Defaults to 32 spaces.
+
+Experimental Options
+====================
+* ``-5/--h265`` This indicates that you want to use h265 encoding/decoding. This makes your video files about half the size, and decoding goes much faster, however some smaller video hosting sites may not support this format yet. Youtube does support this format.
+* ``-z/--zfec`` This indicates that you want to use zfec error correction. This will make the resulting file about 33-50%% larger, but it has the potential to correct small errors in the binary code.
