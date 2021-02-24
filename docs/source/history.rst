@@ -6,6 +6,7 @@ Planned (1.1.0)
 
 - GUI
 - Use json-encoded strings instead of pickle for storing stuff
+- Allow H.265 encoding/decoding with the -5 or --h265 flags. This makes the video file about 50% smaller, and decoding the pixels about 3x faster.
 
 1.0.0
 =====

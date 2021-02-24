@@ -13,6 +13,7 @@ import json
 import base64
 import decimal
 import random
+import magic
 
 from zfec import easyfec as ef
 
@@ -22,7 +23,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from Crypto.Cipher import AES
 
 try:
-    from fvid_cython import cy_get_bits_from_image as cy_gbfi
+    from fvid_cython import cy_gbfi, cy_gbfi_h265
 
     use_cython = True
 except (ImportError, ModuleNotFoundError):
@@ -38,12 +39,13 @@ NOTDEBUG = True
 TEMPVIDEO = "_temp.mp4"
 FRAMERATE = "1"
 
-# DO NOT CHANGE: (2, 3) WORKS SOMETIMES
-# BUT SOMEHOW THIS IS THE ONLY COMBO THAT ALWAYS WORKS
+# DO NOT CHANGE: (2, 3-8) works sometimes
+# this is the most effieicnt by far though
 KVAL = 4
 MVAL = 5
-# THIS CAN BE ANY POWER OF 2 BUT MUST STAY SAME BETWEEN ENCODING/DECODING
-# RECOMMENDED 8-64
+# this can by ANY integer that is a multiple of (KVAL/MVAL)
+# but it MUST stay the same between encoding/decoding
+# reccomended 8-64
 BLOCK = 16
 
 
@@ -157,44 +159,59 @@ def get_bits_from_file(
     return bitarray.bin
 
 
-def get_bits_from_image(image: Image) -> str:
+def get_bits_from_image(image: Image, use_h265: bool) -> str:
     """
     extract bits from image (frame) pixels
 
     image -- png image file used to extract bits from
     """
 
-    if use_cython:
+    # use two different functions so we can type pixel correctly
+    if use_cython and not use_h265:
         return cy_gbfi(image)
+    elif use_cython and use_h265:
+        return cy_gbfi_h265(image)
 
     width, height = image.size
 
     px = image.load()
     bits = ""
 
-    for y in range(height):
-        for x in range(width):
+    # use separate code path so we dont check inside every loop
+    if not use_h265:
+        for y in range(height):
+            for x in range(width):
+                pixel = px[x, y]
+                pixel_bin_rep = "0"
 
-            pixel = px[x, y]
+                # if the white difference is smaller, that means the pixel is
+                # closer to white, otherwise, the pixel must be black
+                if (
+                    abs(pixel[0] - 255) < abs(pixel[0] - 0)
+                    and abs(pixel[1] - 255) < abs(pixel[1] - 0)
+                    and abs(pixel[2] - 255) < abs(pixel[2] - 0)
+                ):
+                    pixel_bin_rep = "1"
 
-            pixel_bin_rep = "0"
+                # adding bits
+                bits += pixel_bin_rep
+    else:
+        for y in range(height):
+            for x in range(width):
+                pixel = px[x, y]
+                pixel_bin_rep = "0"
 
-            # if the white difference is smaller, that means the pixel is
-            # closer to white, otherwise, the pixel must be black
-            if (
-                abs(pixel[0] - 255) < abs(pixel[0] - 0)
-                and abs(pixel[1] - 255) < abs(pixel[1] - 0)
-                and abs(pixel[2] - 255) < abs(pixel[2] - 0)
-            ):
-                pixel_bin_rep = "1"
+                # pixel is either 0 or 255, black or white
+                if pixel == 255:
+                    pixel_bin_rep = "1"
 
-            # adding bits
-            bits += pixel_bin_rep
+                # adding bits
+                bits += pixel_bin_rep
 
     return bits
 
 
-def get_bits_from_video(video_filepath: str) -> str:
+def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
     """
     extract the bits from a video by frame (using a sequence of images)
 
@@ -204,14 +221,24 @@ def get_bits_from_video(video_filepath: str) -> str:
     print("Reading video...")
 
     image_sequence = []
-    os.system(
-        "ffmpeg -i "
-        + video_filepath
-        + " -c:v libx264rgb -filter:v fps=fps="
-        + FRAMERATE
-        + " "
-        + TEMPVIDEO
-    )
+    if use_h265:
+        os.system(
+            "ffmpeg -i "
+            + video_filepath
+            + " -c:v libx265 -filter:v fps=fps="
+            + FRAMERATE
+            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + TEMPVIDEO
+        )
+    else:
+        os.system(
+            "ffmpeg -i "
+            + video_filepath
+            + " -c:v libx264rgb -filter:v fps=fps="
+            + FRAMERATE
+            + " "
+            + TEMPVIDEO
+        )
     os.system(
         "ffmpeg -i " + TEMPVIDEO + " ./fvid_frames/decoded_frames_%d.png"
     )
@@ -230,7 +257,7 @@ def get_bits_from_video(video_filepath: str) -> str:
         print("Using Cython...")
 
     for index in tqdm(range(sequence_length)):
-        bits += get_bits_from_image(image_sequence[index])
+        bits += get_bits_from_image(image_sequence[index], use_h265)
 
     return bits
 
@@ -289,6 +316,9 @@ def save_bits_to_file(
     print("Unziping...")
     in_ = io.BytesIO()
     in_.write(bitstring.bytes)
+    in_.seek(0)
+    # DOES NOT WORK IF WE DONT CHECK BUFFER, UNSURE WHY
+    filetype = magic.from_buffer(in_.read())
     in_.seek(0)
     with gzip.GzipFile(fileobj=in_, mode="rb") as fo:
         bitstring = fo.read()
@@ -388,7 +418,7 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
         index += 1
 
 
-def make_video(output_filepath: str, framerate: int = FRAMERATE):
+def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False):
     """
     Create video using ffmpeg
 
@@ -401,13 +431,21 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE):
     else:
         outputfile = output_filepath
 
-    os.system(
-        "ffmpeg -r "
-        + framerate
-        + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb "
-        + outputfile
-    )
-
+    if use_h265:
+        os.system(
+            "ffmpeg -r "
+            + framerate
+            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx265 "
+            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + outputfile
+        )
+    else:
+        os.system(
+            "ffmpeg -r "
+            + framerate
+            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb "
+            + outputfile
+        )
 
 def cleanup():
     """
@@ -468,6 +506,12 @@ def main():
         ),
         action="store_true",
     )
+    parser.add_argument(
+        "-5",
+        "--h265",
+        help="Use H.265 codec for improved efficiency",
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -495,7 +539,7 @@ def main():
     key = get_password(args.password)
 
     if args.decode:
-        bits = get_bits_from_video(args.input)
+        bits = get_bits_from_video(args.input, args.h265)
 
         file_path = None
 
@@ -529,7 +573,7 @@ def main():
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, args.framerate)
+        make_video(video_file_path, args.framerate, args.h265)
 
     cleanup()
 
