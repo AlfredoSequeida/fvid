@@ -6,6 +6,8 @@ Planned (1.1.0)
 
 - GUI
 - Use json-encoded strings instead of pickle for storing stuff
+- Add `-5` flag for H265 encoding/decoding, much smaller output file
+- Add zfec error correction
 
 1.0.0
 =====
