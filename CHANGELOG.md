@@ -1,6 +1,8 @@
 __Planned (1.1.0)__
 - GUI
 - Use json-encoded strings instead of pickle for storing stuff
+- Add `-5` flag for H265 encoding/decoding, much smaller output file
+- Add zfec error correction
 
 __1.0.0__
 
