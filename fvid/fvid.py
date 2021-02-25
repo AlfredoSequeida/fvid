@@ -40,7 +40,7 @@ TEMPVIDEO = "_temp.mp4"
 FRAMERATE = "1"
 
 # DO NOT CHANGE: (2, 3-8) works sometimes
-# this is the most effieicnt by far though
+# this is the most efficient by far though
 KVAL = 4
 MVAL = 5
 # this can by ANY integer that is a multiple of (KVAL/MVAL)
