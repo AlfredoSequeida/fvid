@@ -11,6 +11,11 @@ import io
 import gzip
 import json
 import base64
+import decimal
+import random
+import magic
+
+from zfec import easyfec as ef
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -18,7 +23,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from Crypto.Cipher import AES
 
 try:
-    from fvid_cython import cy_get_bits_from_image as cy_gbfi
+    from fvid_cython import cy_gbfi, cy_gbfi_h265
 
     use_cython = True
 except (ImportError, ModuleNotFoundError):
@@ -33,6 +38,15 @@ DEFAULT_KEY = DEFAULT_KEY.encode()
 NOTDEBUG = True
 TEMPVIDEO = "_temp.mp4"
 FRAMERATE = "1"
+
+# DO NOT CHANGE: (2, 3-8) works sometimes
+# this is the most effieicnt by far though
+KVAL = 4
+MVAL = 5
+# this can by ANY integer that is a multiple of (KVAL/MVAL)
+# but it MUST stay the same between encoding/decoding
+# reccomended 8-64
+BLOCK = 16
 
 
 class WrongPassword(Exception):
@@ -67,21 +81,51 @@ def get_password(password_provided: str) -> bytes:
         key = kdf.derive(password)
         return key
 
-
-def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
+def encode_zfec(bit_array: BitArray) -> BitArray:
+    global KVAL, MVAL, BLOCK
     """
-    Get/read bits from file
+    Apply Reed-Solomon error correction every byte to maximize retrieval
+    possibility as opposed to applying it to the entire file
+
+    bit_array -- BitArray containing raw file data
+    ecc -- The error correction value to be used (default DEFAULT_ECC)
+    """
+
+    bits = bit_array.bin
+
+    # split bits into blocks of bits
+    byte_list = split_string_by_n(bits, BLOCK)
+
+    ecc_bytes = ""
+
+
+    print("Applying Zfec Error Correction...")
+
+    encoder = ef.Encoder(KVAL, MVAL)
+    for b in tqdm(byte_list):
+        ecc_bytes += ''.join(map(bytes.decode, encoder.encode(b.encode('utf-8'))))
+
+    return BitArray(bytes=ecc_bytes.encode('utf-8'))
+
+def get_bits_from_file(
+    filepath: str, key: bytes, zfec: bool
+) -> BitArray:
+    """
+    Get/read bits fom file, encrypt data, and zip
 
     filepath -- the file to read
     key -- key used to encrypt file
+    zfec -- if reed solomon should be used to encode bits
     """
 
     print("Reading file...")
 
     bitarray = BitArray(filename=filepath)
 
-    # adding a delimiter to know when the file ends to avoid corrupted files
-    # when retrieving
+    if zfec:
+        bitarray = encode_zfec(bitarray)
+
+    # encrypt data
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
     ciphertext, tag = cipher.encrypt_and_digest(bitarray.tobytes())
 
@@ -89,6 +133,7 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
 
     # because json can only serialize strings, the byte objects are encoded
     # using base64
+
     data_bytes = json.dumps(
         {
             "tag": base64.b64encode(tag).decode("utf-8"),
@@ -97,7 +142,7 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
         }
     ).encode("utf-8")
 
-    print("Zipping...")
+    # print("Zipping...")
 
     # zip
     out = io.BytesIO()
@@ -109,49 +154,64 @@ def get_bits_from_file(filepath: str, key: bytes) -> BitArray:
     del bitarray
 
     bitarray = BitArray(zip)
+    # bitarray = BitArray(data_bytes)
 
     return bitarray.bin
 
 
-def get_bits_from_image(image: Image) -> str:
+def get_bits_from_image(image: Image, use_h265: bool) -> str:
     """
     extract bits from image (frame) pixels
 
     image -- png image file used to extract bits from
     """
 
-    if use_cython:
-        bits = cy_gbfi(image)
-        return bits
+    # use two different functions so we can type pixel correctly
+    if use_cython and not use_h265:
+        return cy_gbfi(image)
+    elif use_cython and use_h265:
+        return cy_gbfi_h265(image)
 
     width, height = image.size
 
     px = image.load()
     bits = ""
 
-    for y in range(height):
-        for x in range(width):
+    # use separate code path so we dont check inside every loop
+    if not use_h265:
+        for y in range(height):
+            for x in range(width):
+                pixel = px[x, y]
+                pixel_bin_rep = "0"
 
-            pixel = px[x, y]
+                # if the white difference is smaller, that means the pixel is
+                # closer to white, otherwise, the pixel must be black
+                if (
+                    abs(pixel[0] - 255) < abs(pixel[0] - 0)
+                    and abs(pixel[1] - 255) < abs(pixel[1] - 0)
+                    and abs(pixel[2] - 255) < abs(pixel[2] - 0)
+                ):
+                    pixel_bin_rep = "1"
 
-            pixel_bin_rep = "0"
+                # adding bits
+                bits += pixel_bin_rep
+    else:
+        for y in range(height):
+            for x in range(width):
+                pixel = px[x, y]
+                pixel_bin_rep = "0"
 
-            # if the white difference is smaller, that means the pixel is
-            # closer to white, otherwise, the pixel must be black
-            if (
-                abs(pixel[0] - 255) < abs(pixel[0] - 0)
-                and abs(pixel[1] - 255) < abs(pixel[1] - 0)
-                and abs(pixel[2] - 255) < abs(pixel[2] - 0)
-            ):
-                pixel_bin_rep = "1"
+                # pixel is either 0 or 255, black or white
+                if pixel == 255:
+                    pixel_bin_rep = "1"
 
-            # adding bits
-            bits += pixel_bin_rep
+                # adding bits
+                bits += pixel_bin_rep
 
     return bits
 
 
-def get_bits_from_video(video_filepath: str) -> str:
+def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
     """
     extract the bits from a video by frame (using a sequence of images)
 
@@ -161,14 +221,24 @@ def get_bits_from_video(video_filepath: str) -> str:
     print("Reading video...")
 
     image_sequence = []
-    os.system(
-        "ffmpeg -i "
-        + video_filepath
-        + " -c:v libx264rgb -filter:v fps=fps="
-        + FRAMERATE
-        + " "
-        + TEMPVIDEO
-    )
+    if use_h265:
+        os.system(
+            "ffmpeg -i "
+            + video_filepath
+            + " -c:v libx265 -filter:v fps=fps="
+            + FRAMERATE
+            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + TEMPVIDEO
+        )
+    else:
+        os.system(
+            "ffmpeg -i "
+            + video_filepath
+            + " -c:v libx264rgb -filter:v fps=fps="
+            + FRAMERATE
+            + " "
+            + TEMPVIDEO
+        )
     os.system(
         "ffmpeg -i " + TEMPVIDEO + " ./fvid_frames/decoded_frames_%d.png"
     )
@@ -185,19 +255,59 @@ def get_bits_from_video(video_filepath: str) -> str:
 
     if use_cython:
         print("Using Cython...")
+
     for index in tqdm(range(sequence_length)):
-        bits += get_bits_from_image(image_sequence[index])
+        bits += get_bits_from_image(image_sequence[index], use_h265)
 
     return bits
 
 
-def save_bits_to_file(file_path: str, bits: str, key: bytes):
+def decode_zfec(data_bytes: bytes) -> bytes:
+    global KVAL, MVAL, BLOCK
+
+    byte_list = split_string_by_n(data_bytes, int(BLOCK*(MVAL/KVAL)))
+
+    # appending to a single bytes object is very slow so we make 50-51 and combine at the end
+    decoded_bytes = [bytes()] * (int(len(byte_list) / 50) + 1)
+
+    print("Decoding Zfec Error Correction...")
+
+    decoder = ef.Decoder(KVAL, MVAL)
+    i = 0
+    for b in tqdm(byte_list):
+        base = split_string_by_n(b, len(b) // MVAL)
+        decoded_str_1 = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
+        decoded_str_2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
+        if decoded_str_1 == decoded_str_2:
+            decoded_bytes[i//50] += decoded_str_1
+        else: # its corrupted here
+            j = 10
+            while j > 0 and decoded_str_1 != decoded_str_2:
+                random.shuffle(base)
+                decoded_str_1 = decoder.decode(base[:KVAL], list(range(KVAL)), 0)
+                decoded_str_2 = decoder.decode(base[1:KVAL+1], list(range(KVAL+1))[1:], 0)
+                j -= 1
+            decoded_bytes[i//50] += decoded_str_1 # it should be correct by now
+        i += 1
+
+    decoded_bytestring = bytes()
+    
+    for bytestring in tqdm(decoded_bytes):
+        decoded_bytestring += bytestring
+
+    return decoded_bytestring
+
+
+def save_bits_to_file(
+    file_path: str, bits: str, key: bytes, zfec: bool
+):
     """
     save/write bits to a file
 
     file_path -- the path to write to
     bits -- the bits to write
     key -- key userd for file decryption
+    zfec -- needed if reed solomon was used to encode bits
     """
 
     bitstring = Bits(bin=bits)
@@ -206,6 +316,9 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
     print("Unziping...")
     in_ = io.BytesIO()
     in_.write(bitstring.bytes)
+    in_.seek(0)
+    # DOES NOT WORK IF WE DONT CHECK BUFFER, UNSURE WHY
+    filetype = magic.from_buffer(in_.read())
     in_.seek(0)
     with gzip.GzipFile(fileobj=in_, mode="rb") as fo:
         bitstring = fo.read()
@@ -220,8 +333,9 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
 
     filename = data["filename"]
 
+    # decrypting data
     cipher = AES.new(key, AES.MODE_EAX, nonce=SALT)
-    bitstring = cipher.decrypt(ciphertext)
+    data_bytes = cipher.decrypt(ciphertext)
 
     print("Checking integrity...")
 
@@ -230,7 +344,12 @@ def save_bits_to_file(file_path: str, bits: str, key: bytes):
     except ValueError:
         raise WrongPassword("Key incorrect or message corrupted")
 
-    bitstring = BitArray(bitstring)
+    bitstring = Bits(data_bytes)
+
+    if zfec:
+        bitstring = Bits(
+            "0b" + decode_zfec(data_bytes).decode("utf-8")
+        )
 
     # If filepath not passed in use default otherwise used passed in filepath
     if file_path == None:
@@ -286,11 +405,12 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
 
     index = 1
     bitlist = bitlist[::-1]
+
     print("Saving frames...")
+
     for _ in tqdm(range(len(bitlist))):
         bitl = bitlist.pop()
         image_bits = list(map(int, bitl))
-        # print(image_bits)
 
         image = Image.new("1", (width, height))
         image.putdata(image_bits)
@@ -298,7 +418,7 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
         index += 1
 
 
-def make_video(output_filepath: str, framerate: int = FRAMERATE):
+def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False):
     """
     Create video using ffmpeg
 
@@ -311,13 +431,21 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE):
     else:
         outputfile = output_filepath
 
-    os.system(
-        "ffmpeg -r "
-        + framerate
-        + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb "
-        + outputfile
-    )
-
+    if use_h265:
+        os.system(
+            "ffmpeg -r "
+            + framerate
+            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx265 "
+            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + outputfile
+        )
+    else:
+        os.system(
+            "ffmpeg -r "
+            + framerate
+            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb "
+            + outputfile
+        )
 
 def cleanup():
     """
@@ -335,7 +463,6 @@ def setup():
 
     if not os.path.exists(FRAMES_DIR):
         os.makedirs(FRAMES_DIR)
-
 
 def main():
     global FRAMERATE
@@ -364,6 +491,27 @@ def main():
         type=str,
         default="default",
     )
+    parser.add_argument(
+        "-z",
+        "--zfec",
+        help=(
+            "Apply Zfec error correcting. This is helpful if you're"
+            " finding that your data is not being decoded correctly. It adds"
+            " 2 extra bits per byte making it possible to recover all 8 bits"
+            " in the case the data changes during the decoding process at"
+            " the cost of making your video files larger. Note, if you use"
+            " this option, you must also use the -r flag to decode a video"
+            " back to a file, otherwise, your data will not be recovered"
+            " correctly."
+        ),
+        action="store_true",
+    )
+    parser.add_argument(
+        "-5",
+        "--h265",
+        help="Use H.265 codec for improved efficiency",
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -391,14 +539,14 @@ def main():
     key = get_password(args.password)
 
     if args.decode:
-        bits = get_bits_from_video(args.input)
+        bits = get_bits_from_video(args.input, args.h265)
 
         file_path = None
 
         if args.output:
             file_path = args.output
 
-        save_bits_to_file(file_path, bits, key)
+        save_bits_to_file(file_path, bits, key, args.zfec)
 
     elif args.encode:
 
@@ -415,7 +563,7 @@ def main():
             )
 
         # get bits from file
-        bits = get_bits_from_file(args.input, key)
+        bits = get_bits_from_file(args.input, key, args.zfec)
 
         # create image sequence
         make_image_sequence(bits)
@@ -425,6 +573,9 @@ def main():
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, args.framerate)
+        make_video(video_file_path, args.framerate, args.h265)
 
     cleanup()
+
+if __name__ == '__main__':
+    main()
