@@ -3,7 +3,7 @@
 # cython: cdivision=True
 # cython: wraparound=False
 
-cpdef str cy_get_bits_from_image(image):
+cpdef str cy_gbfi(image):
     cdef int width, height, x, y
     cdef str pixel_bin_rep, bits
     cdef (int, int, int) pixel
@@ -26,5 +26,20 @@ cpdef str cy_get_bits_from_image(image):
 
             # adding bits
             bits += pixel_bin_rep
+
+    return bits
+
+cpdef str cy_gbfi_h265(image):
+    cdef int width, height, x, y
+    cdef str bits
+
+    width, height = image.size
+
+    px = image.load()
+    bits = ""
+    
+    for y in range(height):
+        for x in range(width):
+            bits += "1" if px[x, y] == 255 else "0"
 
     return bits

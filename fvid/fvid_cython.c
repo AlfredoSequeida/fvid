@@ -1331,6 +1331,9 @@ static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject *const *kwvalues
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
+/* PyIntCompare.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_EqObjC(PyObject *op1, PyObject *op2, long intval, long inplace);
+
 /* FetchCommonType.proto */
 static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
 #if CYTHON_COMPILING_IN_LIMITED_API
@@ -1544,7 +1547,8 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 /* Module declarations from "fvid_cython" */
 #if !CYTHON_COMPILING_IN_LIMITED_API
 #endif
-static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_11fvid_cython_cy_gbfi(PyObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_11fvid_cython_cy_gbfi_h265(PyObject *, int __pyx_skip_dispatch); /*proto*/
 /* #### Code section: typeinfo ### */
 /* #### Code section: before_global_var ### */
 #define __Pyx_MODULE_NAME "fvid_cython"
@@ -1558,7 +1562,7 @@ static PyObject *__pyx_builtin_range;
 static const char __pyx_k_[] = "";
 static const char __pyx_k_0[] = "0";
 static const char __pyx_k_1[] = "1";
-static const char __pyx_k__4[] = "?";
+static const char __pyx_k__6[] = "?";
 static const char __pyx_k_load[] = "load";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
@@ -1566,19 +1570,21 @@ static const char __pyx_k_size[] = "size";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_image[] = "image";
 static const char __pyx_k_range[] = "range";
+static const char __pyx_k_cy_gbfi[] = "cy_gbfi";
 static const char __pyx_k_fvid_cython[] = "fvid_cython";
+static const char __pyx_k_cy_gbfi_h265[] = "cy_gbfi_h265";
 static const char __pyx_k_class_getitem[] = "__class_getitem__";
 static const char __pyx_k_fvid_cython_pyx[] = "fvid_cython.pyx";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
-static const char __pyx_k_cy_get_bits_from_image[] = "cy_get_bits_from_image";
 #if !CYTHON_COMPILING_IN_LIMITED_API
 static PyObject *__pyx_kp_u_;
 static PyObject *__pyx_kp_u_0;
 static PyObject *__pyx_kp_u_1;
-static PyObject *__pyx_n_s__4;
+static PyObject *__pyx_n_s__6;
 static PyObject *__pyx_n_s_class_getitem;
 static PyObject *__pyx_n_s_cline_in_traceback;
-static PyObject *__pyx_n_s_cy_get_bits_from_image;
+static PyObject *__pyx_n_s_cy_gbfi;
+static PyObject *__pyx_n_s_cy_gbfi_h265;
 static PyObject *__pyx_n_s_fvid_cython;
 static PyObject *__pyx_kp_s_fvid_cython_pyx;
 static PyObject *__pyx_n_s_image;
@@ -1590,12 +1596,16 @@ static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_test;
 #endif
 /* #### Code section: decls ### */
-static PyObject *__pyx_pf_11fvid_cython_cy_get_bits_from_image(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image); /* proto */
+static PyObject *__pyx_pf_11fvid_cython_cy_gbfi(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image); /* proto */
+static PyObject *__pyx_pf_11fvid_cython_2cy_gbfi_h265(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image); /* proto */
 #if !CYTHON_COMPILING_IN_LIMITED_API
+static PyObject *__pyx_int_255;
 #endif
 #if !CYTHON_COMPILING_IN_LIMITED_API
 static PyObject *__pyx_tuple__2;
+static PyObject *__pyx_tuple__4;
 static PyObject *__pyx_codeobj__3;
+static PyObject *__pyx_codeobj__5;
 #endif
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
@@ -1616,10 +1626,11 @@ typedef struct {
   PyObject *__pyx_kp_u_;
   PyObject *__pyx_kp_u_0;
   PyObject *__pyx_kp_u_1;
-  PyObject *__pyx_n_s__4;
+  PyObject *__pyx_n_s__6;
   PyObject *__pyx_n_s_class_getitem;
   PyObject *__pyx_n_s_cline_in_traceback;
-  PyObject *__pyx_n_s_cy_get_bits_from_image;
+  PyObject *__pyx_n_s_cy_gbfi;
+  PyObject *__pyx_n_s_cy_gbfi_h265;
   PyObject *__pyx_n_s_fvid_cython;
   PyObject *__pyx_kp_s_fvid_cython_pyx;
   PyObject *__pyx_n_s_image;
@@ -1629,8 +1640,11 @@ typedef struct {
   PyObject *__pyx_n_s_range;
   PyObject *__pyx_n_s_size;
   PyObject *__pyx_n_s_test;
+  PyObject *__pyx_int_255;
   PyObject *__pyx_tuple__2;
+  PyObject *__pyx_tuple__4;
   PyObject *__pyx_codeobj__3;
+  PyObject *__pyx_codeobj__5;
 } __pyx_mstate;
 
 #ifdef __cplusplus
@@ -1667,10 +1681,11 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_u_);
   Py_CLEAR(clear_module_state->__pyx_kp_u_0);
   Py_CLEAR(clear_module_state->__pyx_kp_u_1);
-  Py_CLEAR(clear_module_state->__pyx_n_s__4);
+  Py_CLEAR(clear_module_state->__pyx_n_s__6);
   Py_CLEAR(clear_module_state->__pyx_n_s_class_getitem);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
-  Py_CLEAR(clear_module_state->__pyx_n_s_cy_get_bits_from_image);
+  Py_CLEAR(clear_module_state->__pyx_n_s_cy_gbfi);
+  Py_CLEAR(clear_module_state->__pyx_n_s_cy_gbfi_h265);
   Py_CLEAR(clear_module_state->__pyx_n_s_fvid_cython);
   Py_CLEAR(clear_module_state->__pyx_kp_s_fvid_cython_pyx);
   Py_CLEAR(clear_module_state->__pyx_n_s_image);
@@ -1680,8 +1695,11 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_range);
   Py_CLEAR(clear_module_state->__pyx_n_s_size);
   Py_CLEAR(clear_module_state->__pyx_n_s_test);
+  Py_CLEAR(clear_module_state->__pyx_int_255);
   Py_CLEAR(clear_module_state->__pyx_tuple__2);
+  Py_CLEAR(clear_module_state->__pyx_tuple__4);
   Py_CLEAR(clear_module_state->__pyx_codeobj__3);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__5);
   return 0;
 }
 #endif
@@ -1705,10 +1723,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_u_);
   Py_VISIT(traverse_module_state->__pyx_kp_u_0);
   Py_VISIT(traverse_module_state->__pyx_kp_u_1);
-  Py_VISIT(traverse_module_state->__pyx_n_s__4);
+  Py_VISIT(traverse_module_state->__pyx_n_s__6);
   Py_VISIT(traverse_module_state->__pyx_n_s_class_getitem);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
-  Py_VISIT(traverse_module_state->__pyx_n_s_cy_get_bits_from_image);
+  Py_VISIT(traverse_module_state->__pyx_n_s_cy_gbfi);
+  Py_VISIT(traverse_module_state->__pyx_n_s_cy_gbfi_h265);
   Py_VISIT(traverse_module_state->__pyx_n_s_fvid_cython);
   Py_VISIT(traverse_module_state->__pyx_kp_s_fvid_cython_pyx);
   Py_VISIT(traverse_module_state->__pyx_n_s_image);
@@ -1718,8 +1737,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_range);
   Py_VISIT(traverse_module_state->__pyx_n_s_size);
   Py_VISIT(traverse_module_state->__pyx_n_s_test);
+  Py_VISIT(traverse_module_state->__pyx_int_255);
   Py_VISIT(traverse_module_state->__pyx_tuple__2);
+  Py_VISIT(traverse_module_state->__pyx_tuple__4);
   Py_VISIT(traverse_module_state->__pyx_codeobj__3);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__5);
   return 0;
 }
 #endif
@@ -1740,10 +1762,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_u_ __pyx_mstate_global->__pyx_kp_u_
 #define __pyx_kp_u_0 __pyx_mstate_global->__pyx_kp_u_0
 #define __pyx_kp_u_1 __pyx_mstate_global->__pyx_kp_u_1
-#define __pyx_n_s__4 __pyx_mstate_global->__pyx_n_s__4
+#define __pyx_n_s__6 __pyx_mstate_global->__pyx_n_s__6
 #define __pyx_n_s_class_getitem __pyx_mstate_global->__pyx_n_s_class_getitem
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
-#define __pyx_n_s_cy_get_bits_from_image __pyx_mstate_global->__pyx_n_s_cy_get_bits_from_image
+#define __pyx_n_s_cy_gbfi __pyx_mstate_global->__pyx_n_s_cy_gbfi
+#define __pyx_n_s_cy_gbfi_h265 __pyx_mstate_global->__pyx_n_s_cy_gbfi_h265
 #define __pyx_n_s_fvid_cython __pyx_mstate_global->__pyx_n_s_fvid_cython
 #define __pyx_kp_s_fvid_cython_pyx __pyx_mstate_global->__pyx_kp_s_fvid_cython_pyx
 #define __pyx_n_s_image __pyx_mstate_global->__pyx_n_s_image
@@ -1753,27 +1776,30 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_range __pyx_mstate_global->__pyx_n_s_range
 #define __pyx_n_s_size __pyx_mstate_global->__pyx_n_s_size
 #define __pyx_n_s_test __pyx_mstate_global->__pyx_n_s_test
+#define __pyx_int_255 __pyx_mstate_global->__pyx_int_255
 #define __pyx_tuple__2 __pyx_mstate_global->__pyx_tuple__2
+#define __pyx_tuple__4 __pyx_mstate_global->__pyx_tuple__4
 #define __pyx_codeobj__3 __pyx_mstate_global->__pyx_codeobj__3
+#define __pyx_codeobj__5 __pyx_mstate_global->__pyx_codeobj__5
 #endif
 /* #### Code section: module_code ### */
 
 /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_gbfi(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
  *     cdef str pixel_bin_rep, bits
  */
 
-static PyObject *__pyx_pw_11fvid_cython_1cy_get_bits_from_image(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11fvid_cython_1cy_gbfi(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_image, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_11fvid_cython_cy_gbfi(PyObject *__pyx_v_image, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_width;
   int __pyx_v_height;
   int __pyx_v_x;
@@ -1803,7 +1829,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("cy_get_bits_from_image", 0);
+  __Pyx_RefNannySetupContext("cy_gbfi", 0);
 
   /* "fvid_cython.pyx":11
  *     cdef (int, int, int) pixel
@@ -2040,6 +2066,8 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
  *             bits += pixel_bin_rep
  * 
  *     return bits             # <<<<<<<<<<<<<<
+ * 
+ * cpdef str cy_gbfi_h265(image):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_bits);
@@ -2049,7 +2077,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_gbfi(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
  *     cdef str pixel_bin_rep, bits
  */
@@ -2060,7 +2088,7 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("fvid_cython.cy_get_bits_from_image", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_pixel_bin_rep);
@@ -2072,15 +2100,15 @@ static PyObject *__pyx_f_11fvid_cython_cy_get_bits_from_image(PyObject *__pyx_v_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11fvid_cython_1cy_get_bits_from_image(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_11fvid_cython_1cy_gbfi(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_11fvid_cython_1cy_get_bits_from_image = {"cy_get_bits_from_image", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11fvid_cython_1cy_get_bits_from_image, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_11fvid_cython_1cy_get_bits_from_image(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_11fvid_cython_1cy_gbfi = {"cy_gbfi", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11fvid_cython_1cy_gbfi, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_11fvid_cython_1cy_gbfi(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -2097,7 +2125,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("cy_get_bits_from_image (wrapper)", 0);
+  __Pyx_RefNannySetupContext("cy_gbfi (wrapper)", 0);
   {
     #if CYTHON_COMPILING_IN_LIMITED_API
     PyObject **__pyx_pyargnames[] = {&__pyx_n_s_image,0};
@@ -2122,7 +2150,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "cy_get_bits_from_image") < 0)) __PYX_ERR(0, 6, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "cy_gbfi") < 0)) __PYX_ERR(0, 6, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -2133,29 +2161,29 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("cy_get_bits_from_image", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 6, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("cy_gbfi", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 6, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("fvid_cython.cy_get_bits_from_image", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_11fvid_cython_cy_get_bits_from_image(__pyx_self, __pyx_v_image);
+  __pyx_r = __pyx_pf_11fvid_cython_cy_gbfi(__pyx_self, __pyx_v_image);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11fvid_cython_cy_get_bits_from_image(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image) {
+static PyObject *__pyx_pf_11fvid_cython_cy_gbfi(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("cy_get_bits_from_image", 0);
+  __Pyx_RefNannySetupContext("cy_gbfi", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_11fvid_cython_cy_get_bits_from_image(__pyx_v_image, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_11fvid_cython_cy_gbfi(__pyx_v_image, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -2164,7 +2192,353 @@ static PyObject *__pyx_pf_11fvid_cython_cy_get_bits_from_image(CYTHON_UNUSED PyO
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("fvid_cython.cy_get_bits_from_image", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "fvid_cython.pyx":32
+ *     return bits
+ * 
+ * cpdef str cy_gbfi_h265(image):             # <<<<<<<<<<<<<<
+ *     cdef int width, height, x, y
+ *     cdef str bits
+ */
+
+static PyObject *__pyx_pw_11fvid_cython_3cy_gbfi_h265(PyObject *__pyx_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+static PyObject *__pyx_f_11fvid_cython_cy_gbfi_h265(PyObject *__pyx_v_image, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  int __pyx_v_width;
+  int __pyx_v_height;
+  int __pyx_v_x;
+  int __pyx_v_y;
+  PyObject *__pyx_v_bits = 0;
+  PyObject *__pyx_v_px = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *(*__pyx_t_5)(PyObject *);
+  int __pyx_t_6;
+  int __pyx_t_7;
+  int __pyx_t_8;
+  int __pyx_t_9;
+  int __pyx_t_10;
+  int __pyx_t_11;
+  int __pyx_t_12;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("cy_gbfi_h265", 0);
+
+  /* "fvid_cython.pyx":36
+ *     cdef str bits
+ * 
+ *     width, height = image.size             # <<<<<<<<<<<<<<
+ * 
+ *     px = image.load()
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if ((likely(PyTuple_CheckExact(__pyx_t_1))) || (PyList_CheckExact(__pyx_t_1))) {
+    PyObject* sequence = __pyx_t_1;
+    Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
+    if (unlikely(size != 2)) {
+      if (size > 2) __Pyx_RaiseTooManyValuesError(2);
+      else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
+      __PYX_ERR(0, 36, __pyx_L1_error)
+    }
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    if (likely(PyTuple_CheckExact(sequence))) {
+      __pyx_t_2 = PyTuple_GET_ITEM(sequence, 0); 
+      __pyx_t_3 = PyTuple_GET_ITEM(sequence, 1); 
+    } else {
+      __pyx_t_2 = PyList_GET_ITEM(sequence, 0); 
+      __pyx_t_3 = PyList_GET_ITEM(sequence, 1); 
+    }
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx_t_3);
+    #else
+    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    #endif
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  } else {
+    Py_ssize_t index = -1;
+    __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_5 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_4);
+    index = 0; __pyx_t_2 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_2)) goto __pyx_L3_unpacking_failed;
+    __Pyx_GOTREF(__pyx_t_2);
+    index = 1; __pyx_t_3 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_3)) goto __pyx_L3_unpacking_failed;
+    __Pyx_GOTREF(__pyx_t_3);
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 2) < 0) __PYX_ERR(0, 36, __pyx_L1_error)
+    __pyx_t_5 = NULL;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    goto __pyx_L4_unpacking_done;
+    __pyx_L3_unpacking_failed:;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_5 = NULL;
+    if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
+    __PYX_ERR(0, 36, __pyx_L1_error)
+    __pyx_L4_unpacking_done:;
+  }
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_v_width = __pyx_t_6;
+  __pyx_v_height = __pyx_t_7;
+
+  /* "fvid_cython.pyx":38
+ *     width, height = image.size
+ * 
+ *     px = image.load()             # <<<<<<<<<<<<<<
+ *     bits = ""
+ * 
+ */
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_image, __pyx_n_s_load); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = NULL;
+  __pyx_t_7 = 0;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_7 = 1;
+    }
+  }
+  {
+    PyObject *__pyx_callargs[1] = {__pyx_t_2, };
+    __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_7, 0+__pyx_t_7);
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  }
+  __pyx_v_px = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "fvid_cython.pyx":39
+ * 
+ *     px = image.load()
+ *     bits = ""             # <<<<<<<<<<<<<<
+ * 
+ *     for y in range(height):
+ */
+  __Pyx_INCREF(__pyx_kp_u_);
+  __pyx_v_bits = __pyx_kp_u_;
+
+  /* "fvid_cython.pyx":41
+ *     bits = ""
+ * 
+ *     for y in range(height):             # <<<<<<<<<<<<<<
+ *         for x in range(width):
+ *             bits += "1" if px[x, y] == 255 else "0"
+ */
+  __pyx_t_7 = __pyx_v_height;
+  __pyx_t_6 = __pyx_t_7;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_6; __pyx_t_8+=1) {
+    __pyx_v_y = __pyx_t_8;
+
+    /* "fvid_cython.pyx":42
+ * 
+ *     for y in range(height):
+ *         for x in range(width):             # <<<<<<<<<<<<<<
+ *             bits += "1" if px[x, y] == 255 else "0"
+ * 
+ */
+    __pyx_t_9 = __pyx_v_width;
+    __pyx_t_10 = __pyx_t_9;
+    for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+      __pyx_v_x = __pyx_t_11;
+
+      /* "fvid_cython.pyx":43
+ *     for y in range(height):
+ *         for x in range(width):
+ *             bits += "1" if px[x, y] == 255 else "0"             # <<<<<<<<<<<<<<
+ * 
+ *     return bits
+ */
+      __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GIVEREF(__pyx_t_3);
+      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
+      __Pyx_GIVEREF(__pyx_t_2);
+      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_2);
+      __pyx_t_3 = 0;
+      __pyx_t_2 = 0;
+      __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_px, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = __Pyx_PyInt_EqObjC(__pyx_t_2, __pyx_int_255, 0xFF, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_12 < 0)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (__pyx_t_12) {
+        __Pyx_INCREF(__pyx_kp_u_1);
+        __pyx_t_1 = __pyx_kp_u_1;
+      } else {
+        __Pyx_INCREF(__pyx_kp_u_0);
+        __pyx_t_1 = __pyx_kp_u_0;
+      }
+      __pyx_t_4 = __Pyx_PyUnicode_ConcatInPlaceSafe(__pyx_v_bits, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF_SET(__pyx_v_bits, ((PyObject*)__pyx_t_4));
+      __pyx_t_4 = 0;
+    }
+  }
+
+  /* "fvid_cython.pyx":45
+ *             bits += "1" if px[x, y] == 255 else "0"
+ * 
+ *     return bits             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_INCREF(__pyx_v_bits);
+  __pyx_r = __pyx_v_bits;
+  goto __pyx_L0;
+
+  /* "fvid_cython.pyx":32
+ *     return bits
+ * 
+ * cpdef str cy_gbfi_h265(image):             # <<<<<<<<<<<<<<
+ *     cdef int width, height, x, y
+ *     cdef str bits
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi_h265", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_bits);
+  __Pyx_XDECREF(__pyx_v_px);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_11fvid_cython_3cy_gbfi_h265(PyObject *__pyx_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+static PyMethodDef __pyx_mdef_11fvid_cython_3cy_gbfi_h265 = {"cy_gbfi_h265", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_11fvid_cython_3cy_gbfi_h265, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_11fvid_cython_3cy_gbfi_h265(PyObject *__pyx_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  PyObject *__pyx_v_image = 0;
+  #if !CYTHON_METH_FASTCALL
+  CYTHON_UNUSED const Py_ssize_t __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("cy_gbfi_h265 (wrapper)", 0);
+  {
+    #if CYTHON_COMPILING_IN_LIMITED_API
+    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_image,0};
+    #else
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_image,0};
+    #endif
+    PyObject* values[1] = {0};
+    if (__pyx_kwds) {
+      Py_ssize_t kw_args;
+      switch (__pyx_nargs) {
+        case  1: values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = __Pyx_NumKwargs_FASTCALL(__pyx_kwds);
+      switch (__pyx_nargs) {
+        case  0:
+        if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_image)) != 0)) kw_args--;
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 32, __pyx_L3_error)
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        const Py_ssize_t kwd_pos_args = __pyx_nargs;
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "cy_gbfi_h265") < 0)) __PYX_ERR(0, 32, __pyx_L3_error)
+      }
+    } else if (unlikely(__pyx_nargs != 1)) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
+    }
+    __pyx_v_image = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("cy_gbfi_h265", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 32, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi_h265", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_11fvid_cython_2cy_gbfi_h265(__pyx_self, __pyx_v_image);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_11fvid_cython_2cy_gbfi_h265(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_image) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("cy_gbfi_h265", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_f_11fvid_cython_cy_gbfi_h265(__pyx_v_image, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("fvid_cython.cy_gbfi_h265", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2191,10 +2565,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_, sizeof(__pyx_k_), 0, 1, 0, 0},
   {0, __pyx_k_0, sizeof(__pyx_k_0), 0, 1, 0, 0},
   {0, __pyx_k_1, sizeof(__pyx_k_1), 0, 1, 0, 0},
-  {0, __pyx_k__4, sizeof(__pyx_k__4), 0, 0, 1, 1},
+  {0, __pyx_k__6, sizeof(__pyx_k__6), 0, 0, 1, 1},
   {0, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {0, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
-  {0, __pyx_k_cy_get_bits_from_image, sizeof(__pyx_k_cy_get_bits_from_image), 0, 0, 1, 1},
+  {0, __pyx_k_cy_gbfi, sizeof(__pyx_k_cy_gbfi), 0, 0, 1, 1},
+  {0, __pyx_k_cy_gbfi_h265, sizeof(__pyx_k_cy_gbfi_h265), 0, 0, 1, 1},
   {0, __pyx_k_fvid_cython, sizeof(__pyx_k_fvid_cython), 0, 0, 1, 1},
   {0, __pyx_k_fvid_cython_pyx, sizeof(__pyx_k_fvid_cython_pyx), 0, 0, 1, 0},
   {0, __pyx_k_image, sizeof(__pyx_k_image), 0, 0, 1, 1},
@@ -2208,10 +2583,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_, __pyx_k_, sizeof(__pyx_k_), 0, 1, 0, 0},
   {&__pyx_kp_u_0, __pyx_k_0, sizeof(__pyx_k_0), 0, 1, 0, 0},
   {&__pyx_kp_u_1, __pyx_k_1, sizeof(__pyx_k_1), 0, 1, 0, 0},
-  {&__pyx_n_s__4, __pyx_k__4, sizeof(__pyx_k__4), 0, 0, 1, 1},
+  {&__pyx_n_s__6, __pyx_k__6, sizeof(__pyx_k__6), 0, 0, 1, 1},
   {&__pyx_n_s_class_getitem, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
-  {&__pyx_n_s_cy_get_bits_from_image, __pyx_k_cy_get_bits_from_image, sizeof(__pyx_k_cy_get_bits_from_image), 0, 0, 1, 1},
+  {&__pyx_n_s_cy_gbfi, __pyx_k_cy_gbfi, sizeof(__pyx_k_cy_gbfi), 0, 0, 1, 1},
+  {&__pyx_n_s_cy_gbfi_h265, __pyx_k_cy_gbfi_h265, sizeof(__pyx_k_cy_gbfi_h265), 0, 0, 1, 1},
   {&__pyx_n_s_fvid_cython, __pyx_k_fvid_cython, sizeof(__pyx_k_fvid_cython), 0, 0, 1, 1},
   {&__pyx_kp_s_fvid_cython_pyx, __pyx_k_fvid_cython_pyx, sizeof(__pyx_k_fvid_cython_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_image, __pyx_k_image, sizeof(__pyx_k_image), 0, 0, 1, 1},
@@ -2240,14 +2616,26 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_gbfi(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
  *     cdef str pixel_bin_rep, bits
  */
   __pyx_tuple__2 = PyTuple_Pack(1, __pyx_n_s_image); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
-  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_fvid_cython_pyx, __pyx_n_s_cy_get_bits_from_image, 6, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_fvid_cython_pyx, __pyx_n_s_cy_gbfi, 6, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 6, __pyx_L1_error)
+
+  /* "fvid_cython.pyx":32
+ *     return bits
+ * 
+ * cpdef str cy_gbfi_h265(image):             # <<<<<<<<<<<<<<
+ *     cdef int width, height, x, y
+ *     cdef str bits
+ */
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_n_s_image); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__4);
+  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_fvid_cython_pyx, __pyx_n_s_cy_gbfi_h265, 32, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -2261,23 +2649,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
   if (__Pyx_InitString(__pyx_string_tab[0], &__pyx_kp_u_) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[1], &__pyx_kp_u_0) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[2], &__pyx_kp_u_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[3], &__pyx_n_s__4) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[3], &__pyx_n_s__6) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[4], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[5], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[6], &__pyx_n_s_cy_get_bits_from_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[7], &__pyx_n_s_fvid_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_kp_s_fvid_cython_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_n_s_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_load) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_size) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[6], &__pyx_n_s_cy_gbfi) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[7], &__pyx_n_s_cy_gbfi_h265) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_n_s_fvid_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_kp_s_fvid_cython_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_image) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_load) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_size) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   #endif
+  __pyx_int_255 = PyInt_FromLong(255); if (unlikely(!__pyx_int_255)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -2619,13 +3009,25 @@ if (!__Pyx_RefNanny) {
   /* "fvid_cython.pyx":6
  * # cython: wraparound=False
  * 
- * cpdef str cy_get_bits_from_image(image):             # <<<<<<<<<<<<<<
+ * cpdef str cy_gbfi(image):             # <<<<<<<<<<<<<<
  *     cdef int width, height, x, y
  *     cdef str pixel_bin_rep, bits
  */
-  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_11fvid_cython_1cy_get_bits_from_image, 0, __pyx_n_s_cy_get_bits_from_image, NULL, __pyx_n_s_fvid_cython, __pyx_d, ((PyObject *)__pyx_codeobj__3)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_11fvid_cython_1cy_gbfi, 0, __pyx_n_s_cy_gbfi, NULL, __pyx_n_s_fvid_cython, __pyx_d, ((PyObject *)__pyx_codeobj__3)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_cy_get_bits_from_image, __pyx_t_1) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_cy_gbfi, __pyx_t_1) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "fvid_cython.pyx":32
+ *     return bits
+ * 
+ * cpdef str cy_gbfi_h265(image):             # <<<<<<<<<<<<<<
+ *     cdef int width, height, x, y
+ *     cdef str bits
+ */
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_11fvid_cython_3cy_gbfi_h265, 0, __pyx_n_s_cy_gbfi_h265, NULL, __pyx_n_s_fvid_cython, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_cy_gbfi_h265, __pyx_t_1) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "fvid_cython.pyx":1
@@ -3647,6 +4049,77 @@ static void __Pyx_RaiseArgtupleInvalid(
                  "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
                  func_name, more_or_less, num_expected,
                  (num_expected == 1) ? "" : "s", num_found);
+}
+
+/* PyIntCompare */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_EqObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED long intval, CYTHON_UNUSED long inplace) {
+    if (op1 == op2) {
+        Py_RETURN_TRUE;
+    }
+    #if PY_MAJOR_VERSION < 3
+    if (likely(PyInt_CheckExact(op1))) {
+        const long b = intval;
+        long a = PyInt_AS_LONG(op1);
+        if (a == b) Py_RETURN_TRUE; else Py_RETURN_FALSE;
+    }
+    #endif
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (likely(PyLong_CheckExact(op1))) {
+        int unequal;
+        unsigned long uintval;
+        Py_ssize_t size = Py_SIZE(op1);
+        const digit* digits = ((PyLongObject*)op1)->ob_digit;
+        if (intval == 0) {
+            if (size == 0) Py_RETURN_TRUE; else Py_RETURN_FALSE;
+        } else if (intval < 0) {
+            if (size >= 0)
+                Py_RETURN_FALSE;
+            intval = -intval;
+            size = -size;
+        } else {
+            if (size <= 0)
+                Py_RETURN_FALSE;
+        }
+        uintval = (unsigned long) intval;
+#if PyLong_SHIFT * 4 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 4)) {
+            unequal = (size != 5) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[3] != ((uintval >> (3 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[4] != ((uintval >> (4 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 3 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 3)) {
+            unequal = (size != 4) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[3] != ((uintval >> (3 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 2 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 2)) {
+            unequal = (size != 3) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 1 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 1)) {
+            unequal = (size != 2) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+            unequal = (size != 1) || (((unsigned long) digits[0]) != (uintval & (unsigned long) PyLong_MASK));
+        if (unequal == 0) Py_RETURN_TRUE; else Py_RETURN_FALSE;
+    }
+    #endif
+    if (PyFloat_CheckExact(op1)) {
+        const long b = intval;
+#if CYTHON_COMPILING_IN_LIMITED_API
+        double a = __pyx_PyFloat_AsDouble(op1);
+#else
+        double a = PyFloat_AS_DOUBLE(op1);
+#endif
+        if ((double)a == (double)b) Py_RETURN_TRUE; else Py_RETURN_FALSE;
+    }
+    return (
+        PyObject_RichCompare(op1, op2, Py_EQ));
 }
 
 /* FetchCommonType */
@@ -5097,7 +5570,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
                                                __pyx_n_s_name);
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
-        Py_XSETREF(name, __Pyx_NewRef(__pyx_n_s__4));
+        Py_XSETREF(name, __Pyx_NewRef(__pyx_n_s__6));
     }
     return name;
 }
