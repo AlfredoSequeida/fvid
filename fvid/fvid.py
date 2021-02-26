@@ -227,7 +227,7 @@ def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
             + video_filepath
             + "' -c:v libx265 -filter:v fps=fps="
             + FRAMERATE
-            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + " -x265-params lossless=1 -tune grain "
             + TEMPVIDEO
         )
     else:
@@ -436,7 +436,7 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool 
             "ffmpeg -r "
             + framerate
             + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx265 "
-            + " -x265-params lossless=1 -preset 6 -tune grain "
+            + " -x265-params lossless=1 -tune grain "
             + outputfile
         )
     else:
