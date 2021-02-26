@@ -108,7 +108,7 @@ def encode_zfec(bit_array: BitArray) -> BitArray:
     return BitArray(bytes=ecc_bytes.encode('utf-8'))
 
 def get_bits_from_file(
-    filepath: str, key: bytes, zfec: bool
+    filepath: str, key: bytes, zfec: bool,
 ) -> BitArray:
     """
     Get/read bits fom file, encrypt data, and zip
@@ -223,18 +223,18 @@ def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
     image_sequence = []
     if use_h265:
         os.system(
-            "ffmpeg -i "
+            "ffmpeg -i '"
             + video_filepath
-            + " -c:v libx265 -filter:v fps=fps="
+            + "' -c:v libx265 -filter:v fps=fps="
             + FRAMERATE
             + " -x265-params lossless=1 -preset 6 -tune grain "
             + TEMPVIDEO
         )
     else:
         os.system(
-            "ffmpeg -i "
+            "ffmpeg -i '"
             + video_filepath
-            + " -c:v libx264rgb -filter:v fps=fps="
+            + "' -c:v libx264rgb -filter:v fps=fps="
             + FRAMERATE
             + " "
             + TEMPVIDEO
