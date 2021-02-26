@@ -198,15 +198,8 @@ def get_bits_from_image(image: Image, use_h265: bool) -> str:
     else:
         for y in range(height):
             for x in range(width):
-                pixel = px[x, y]
-                pixel_bin_rep = "0"
-
-                # pixel is either 0 or 255, black or white
-                if pixel == 255:
-                    pixel_bin_rep = "1"
-
-                # adding bits
-                bits += pixel_bin_rep
+                # 1 if it's a white pixel, otherwise it's black so 0
+                bits += "1" if px[x, y] == 255 else "0"
 
     return bits
 
