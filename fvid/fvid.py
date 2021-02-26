@@ -108,7 +108,7 @@ def encode_zfec(bit_array: BitArray) -> BitArray:
     return BitArray(bytes=ecc_bytes.encode('utf-8'))
 
 def get_bits_from_file(
-    filepath: str, key: bytes, zfec: bool,
+    filepath: str, key: bytes, zfec: bool
 ) -> BitArray:
     """
     Get/read bits fom file, encrypt data, and zip
