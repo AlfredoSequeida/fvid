@@ -7,11 +7,13 @@ Welcome to Fvid's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
    history
    howto
+   examples
+   errors
 
 Download & Install
 ==================
@@ -48,3 +50,5 @@ Pages
 * :doc:`/index`
 * :doc:`/history`
 * :doc:`/howto`
+* :doc:`/examples`
+* :doc:`/errors`

@@ -215,26 +215,34 @@ def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
 
     image_sequence = []
     if use_h265:
-        os.system(
+        cmd = (         
             "ffmpeg -i '"
             + video_filepath
             + "' -c:v libx265 -filter:v fps=fps="
             + FRAMERATE
-            + " -x265-params lossless=1 -tune grain "
-            + TEMPVIDEO
-        )
+            + " -x265-params lossless=1 -tune grain ")
+        if NOTDEBUG:
+            cmd += "-loglevel fatal " + TEMPVIDEO
+        else:
+            cmd += TEMPVIDEO
+        os.system(cmd)
     else:
-        os.system(
+        cmd = (         
             "ffmpeg -i '"
             + video_filepath
             + "' -c:v libx264rgb -filter:v fps=fps="
             + FRAMERATE
-            + " "
-            + TEMPVIDEO
-        )
-    os.system(
-        "ffmpeg -i " + TEMPVIDEO + " ./fvid_frames/decoded_frames_%d.png"
-    )
+            + " ")
+        if NOTDEBUG:
+            cmd += "-loglevel fatal " + TEMPVIDEO
+        else:
+            cmd += TEMPVIDEO
+        os.system(cmd)
+
+    cmd = "ffmpeg -i " + TEMPVIDEO + " ./fvid_frames/decoded_frames_%d.png"
+    if NOTDEBUG:
+        cmd += " -loglevel fatal"
+    os.system(cmd)
     os.remove(TEMPVIDEO)
 
     for filename in sorted(
@@ -310,8 +318,9 @@ def save_bits_to_file(
     in_ = io.BytesIO()
     in_.write(bitstring.bytes)
     in_.seek(0)
-    # DOES NOT WORK IF WE DONT CHECK BUFFER, UNSURE WHY
+    # always fails without this but sometimes work with this, unsure why
     filetype = magic.from_buffer(in_.read())
+    print(filetype)
     in_.seek(0)
     with gzip.GzipFile(fileobj=in_, mode="rb") as fo:
         bitstring = fo.read()
@@ -418,27 +427,33 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool 
     output_filepath -- the output file path where to store the video
     framerate -- the framerate for the vidoe (default 1)
     """
-
+        
     if output_filepath == None:
         outputfile = "file.mp4"
     else:
         outputfile = output_filepath
 
     if use_h265:
-        os.system(
+        cmd = (         
             "ffmpeg -r "
             + framerate
             + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx265 "
-            + " -x265-params lossless=1 -tune grain "
-            + outputfile
-        )
+            + " -x265-params lossless=1 -tune grain ")
+        if NOTDEBUG:
+            cmd += "-loglevel fatal " + outputfile
+        else:
+            cmd += outputfile
+        os.system(cmd)
     else:
-        os.system(
+        cmd = (
             "ffmpeg -r "
             + framerate
-            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb "
-            + outputfile
-        )
+            + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ")
+        if NOTDEBUG:
+            cmd += "-loglevel fatal " + outputfile
+        else:
+            cmd += outputfile
+        os.system(cmd)
 
 def cleanup():
     """
