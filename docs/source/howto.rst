@@ -39,9 +39,10 @@ If the file was encoded with a non-default password, it'll prompt you to enter t
 Options
 =======
 
-* ``-i/--input`` After this, specify the path to the file you want to encode/decode
+* ``-i/--input`` After this, specify the path to the file you want to encode/decode.
 * ``-o/--output`` After this, specify the name of the new file you want to make. Defaults to ``file.mp4`` when encoding.
-* ``-e/--encode`` This indicates you're encoding the input file
-* ``-d/--decode`` This indicates you're decoding the input file
+* ``-e/--encode`` This indicates you're encoding the input file.
+* ``-d/--decode`` This indicates you're decoding the input file.
+* ``-y/--overwrite`` This indicates that you want ffmpeg to automatically overwrite a previously encoded file if it needs to.
 * ``-f/--framerate`` After this, specify the framerate that you want to have the file output at. A higher value means the frames go faster. Defaults to 1 fps.
 * ``-p/--password`` After this, specify the password you want to encode with. You will need to remember this to decode the file. Defaults to 32 spaces.
