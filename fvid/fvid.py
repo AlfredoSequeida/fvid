@@ -204,7 +204,7 @@ def get_bits_from_image(image: Image, use_h265: bool) -> str:
     return bits
 
 
-def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
+def get_bits_from_video(video_filepath: str, use_h265: bool, overwrite: bool = False) -> str:
     """
     extract the bits from a video by frame (using a sequence of images)
 
@@ -221,6 +221,8 @@ def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
             + "' -c:v libx265 -filter:v fps=fps="
             + FRAMERATE
             + " -x265-params lossless=1 -tune grain ")
+        if overwrite:
+            cmd += "-y "
         if NOTDEBUG:
             cmd += "-loglevel fatal " + TEMPVIDEO
         else:
@@ -233,6 +235,8 @@ def get_bits_from_video(video_filepath: str, use_h265: bool) -> str:
             + "' -c:v libx264rgb -filter:v fps=fps="
             + FRAMERATE
             + " ")
+        if overwrite:
+            cmd += "-y "
         if NOTDEBUG:
             cmd += "-loglevel fatal " + TEMPVIDEO
         else:
@@ -420,7 +424,7 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
         index += 1
 
 
-def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False):
+def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False, overwrite: bool= = False):
     """
     Create video using ffmpeg
 
@@ -439,6 +443,8 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool 
             + framerate
             + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx265 "
             + " -x265-params lossless=1 -tune grain ")
+        if overwrite:
+            cmd += "-y "
         if NOTDEBUG:
             cmd += "-loglevel fatal " + outputfile
         else:
@@ -449,6 +455,8 @@ def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool 
             "ffmpeg -r "
             + framerate
             + " -i ./fvid_frames/encoded_frames_%d.png -c:v libx264rgb ")
+        if overwrite:
+            cmd += "-y "
         if NOTDEBUG:
             cmd += "-loglevel fatal " + outputfile
         else:
@@ -520,6 +528,12 @@ def main():
         help="Use H.265 codec for improved efficiency",
         action="store_true",
     )
+    parser.add_argument(
+        "-y",
+        "--overwrite",
+        help="Automatically overwrite file if it exists (FFMPEG)",
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -547,7 +561,7 @@ def main():
     key = get_password(args.password)
 
     if args.decode:
-        bits = get_bits_from_video(args.input, args.h265)
+        bits = get_bits_from_video(args.input, args.h265, args.overwrite)
 
         file_path = None
 
@@ -581,7 +595,7 @@ def main():
         if args.output:
             video_file_path = args.output
 
-        make_video(video_file_path, args.framerate, args.h265)
+        make_video(video_file_path, args.framerate, args.h265, args.overwrite)
 
     cleanup()
 
