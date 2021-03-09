@@ -23,7 +23,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from Crypto.Cipher import AES
 
 try:
-    from fvid_cython import cy_gbfi, cy_gbfi_h265
+    from fvid_cython import cy_gbfi, cy_gbfi_h265, cy_encode_zfec
 
     use_cython = True
 except (ImportError, ModuleNotFoundError):
@@ -93,19 +93,21 @@ def encode_zfec(bit_array: BitArray) -> BitArray:
 
     bits = bit_array.bin
 
-    # split bits into blocks of bits
-    byte_list = split_string_by_n(bits, BLOCK)
+    if use_cython:
+        return BitArray(bytes=cy_encode_zfec(bits).encode('utf-8'))
+    else:
+        # split bits into blocks of bits
+        byte_list = split_string_by_n(bits, BLOCK)
+        
+        ecc_bytes = ""
 
-    ecc_bytes = ""
+        print("Applying Zfec Error Correction...")
 
+        encoder = ef.Encoder(KVAL, MVAL)
+        for b in tqdm(byte_list):
+            ecc_bytes += ''.join(map(bytes.decode, encoder.encode(b.encode('utf-8'))))
 
-    print("Applying Zfec Error Correction...")
-
-    encoder = ef.Encoder(KVAL, MVAL)
-    for b in tqdm(byte_list):
-        ecc_bytes += ''.join(map(bytes.decode, encoder.encode(b.encode('utf-8'))))
-
-    return BitArray(bytes=ecc_bytes.encode('utf-8'))
+        return BitArray(bytes=ecc_bytes.encode('utf-8'))
 
 def get_bits_from_file(
     filepath: str, key: bytes, zfec: bool
@@ -424,7 +426,7 @@ def make_image_sequence(bitstring: BitArray, resolution: tuple = (1920, 1080)):
         index += 1
 
 
-def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False, overwrite: bool= = False):
+def make_video(output_filepath: str, framerate: int = FRAMERATE, use_h265: bool = False, overwrite: bool = False):
     """
     Create video using ffmpeg
 
