@@ -1,5 +1,5 @@
 Pillow>=7.0.0
 tqdm>=4.25.0
-bitstring
-pycryptography
+bitstring>=3.1.6
+pycryptography>=3.1.1
 zfec
